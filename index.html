@@ -1,126 +1,163 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>réglo.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #fff;
-            color: #000;
-        }
-        header {
-            background-color: #000;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
-        }
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .menu-icons {
-            display: flex;
-            gap: 20px;
-            font-size: 18px;
-        }
-        .hero {
-            text-align: center;
-            padding: 20px;
-        }
-        .hero h1 {
-            font-size: 28px;
-        }
-        .hero h1 span {
-            color: #00B8D9;
-        }
-        .hero ul {
-            list-style: none;
-            padding: 0;
-        }
-        .hero ul li::before {
-            content: "\2713 ";
-        }
-        .btn {
-            background-color: #000;
-            color: #fff;
-            padding: 10px 20px;
-            display: inline-block;
-            margin-top: 15px;
-            text-decoration: none;
-        }
-        .products {
-            padding: 20px;
-        }
-        .product {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .product img {
-            width: 100px;
-            margin-right: 20px;
-        }
-        .product-info {
-            flex: 1;
-        }
-        .stars {
-            color: green;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>réglo.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fff;
+      color: #000;
+    }
+    header.top-bar {
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+    nav.navbar .logo {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .icons {
+      display: flex;
+      gap: 16px;
+    }
+    .hero {
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .hero h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .hero h1 span {
+      color: #00AEEF;
+    }
+    .hero ul {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+    .hero ul li {
+      margin: 6px 0;
+    }
+    .hero ul li::before {
+      content: '\2713';
+      color: black;
+      margin-right: 8px;
+    }
+    .btn-primary {
+      background-color: #000;
+      color: #fff;
+      padding: 12px 24px;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    section.products {
+      padding: 24px 16px;
+    }
+    section.products h2 {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 24px;
+    }
+    .product-card {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 16px 0;
+    }
+    .product-card img {
+      width: 100px;
+      height: auto;
+      margin-right: 16px;
+    }
+    .product-info {
+      flex: 1;
+    }
+    .product-info .rating {
+      color: green;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .product-info .title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .product-info .price {
+      margin-bottom: 8px;
+    }
+    footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 14px;
+      border-top: 1px solid #eee;
+      margin-top: 32px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        -10€ sur votre 1ère commande code <strong>BIENVENUE10</strong>
-    </header>
-    <nav>
-        <div>MENU</div>
-        <div>réglo.</div>
-        <div class="menu-icons">
-            <span>👤</span>
-            <span>🛒</span>
-        </div>
-    </nav>
-    <section class="hero">
-        <p>🇫🇷 FABRIQUÉES EN FRANCE</p>
-        <h1>Les croquettes pour aider votre chien qui <span>se gratte</span></h1>
-        <ul>
-            <li>Efficace contre les allergies</li>
-            <li>Respecte le régime carnivore</li>
-            <li>Formulation vétérinaire</li>
-        </ul>
-        <a href="#" class="btn">DÉCOUVRIR LA GAMME</a>
-    </section>
-    <section class="products">
-        <h2>Meilleures ventes</h2>
+  <header class="top-bar">
+    -10€ sur votre 1ère commande code <strong>BIENVENUE10</strong>
+  </header>
 
-        <div class="product">
-            <img src="/path/to/image1.jpg" alt="Chien Allergies">
-            <div class="product-info">
-                <div class="stars">★★★★★ 762 avis</div>
-                <div>Chien Adulte 10 à 30 kg - <strong>Croquettes Allergies</strong></div>
-                <div>à partir de 34,80 €</div>
-                <a href="#" class="btn">VOIR LE PRODUIT</a>
-            </div>
-        </div>
+  <nav class="navbar">
+    <div>MENU</div>
+    <div class="logo">réglo.</div>
+    <div class="icons">
+      <div>👤</div>
+      <div>🛒</div>
+    </div>
+  </nav>
 
-        <!-- Ajouter d'autres produits ici -->
+  <section class="hero">
+    <p>🇫🇷 FABRIQUÉES EN FRANCE</p>
+    <h1>Les croquettes pour aider votre chien qui <span>se gratte</span></h1>
+    <ul>
+      <li>Efficace contre les allergies</li>
+      <li>Respecte le régime carnivore</li>
+      <li>Formulation vétérinaire</li>
+    </ul>
+    <a href="#" class="btn-primary">DÉCOUVRIR LA GAMME</a>
+  </section>
 
-    </section>
-    <footer>
-        <p>reglo.fr</p>
-    </footer>
+  <section class="products">
+    <h2>Meilleures ventes</h2>
+
+    <div class="product-card">
+      <img src="#" alt="Produit 1" />
+      <div class="product-info">
+        <div class="rating">★★★★★ 762 avis</div>
+        <div class="title">Chien Adulte 10 à 30 kg - Croquettes Allergies</div>
+        <div class="price">à partir de 34,80 €</div>
+        <a href="#" class="btn-primary">VOIR LE PRODUIT</a>
+      </div>
+    </div>
+
+    <!-- Vous pouvez تكرار الكروت كما تريد -->
+
+  </section>
+
+  <footer>
+    © reglo.fr
+  </footer>
 </body>
 </html>
