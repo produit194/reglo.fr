@@ -3,493 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réglo - Croquettes hypoallergéniques pour chien à base de protéines d'insectes</title>
+    <title>réglo.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Reset et styles de base */
-        :root {
-            --primary: #2E8B57;
-            --secondary: #FFA500;
-            --dark: #333333;
-            --light: #F5F5F5;
-            --gray: #777777;
-            --white: #FFFFFF;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            color: var(--dark);
-            line-height: 1.6;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            color: #000;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .section {
-            padding: 80px 0;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #1E5C3A;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        /* Header */
         header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background-color: #000;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
         }
-        
-        .navbar {
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
+            padding: 10px 20px;
+            font-size: 24px;
+            font-weight: bold;
         }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .nav-links {
+        .menu-icons {
             display: flex;
-            gap: 30px;
+            gap: 20px;
+            font-size: 18px;
         }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-        }
-        
-        /* Bestsellers */
-        .bestsellers {
-            background-color: var(--light);
-        }
-        
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
-        }
-        
-        .product-card {
-            background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .product-image {
-            height: 200px;
-            width: 100%;
-            object-fit: cover;
-        }
-        
-        .product-info {
+        .hero {
+            text-align: center;
             padding: 20px;
         }
-        
-        .product-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+        .hero h1 {
+            font-size: 28px;
         }
-        
-        .product-reviews {
-            color: var(--secondary);
-            margin-bottom: 10px;
-            font-size: 0.9rem;
+        .hero h1 span {
+            color: #00B8D9;
         }
-        
-        .product-category {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
+        .hero ul {
+            list-style: none;
+            padding: 0;
         }
-        
-        .product-price {
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 15px;
+        .hero ul li::before {
+            content: "\2713 ";
         }
-        
-        /* Stats */
-        .stats {
-            text-align: center;
-            padding: 60px 0;
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .stats-title {
-            font-size: 2rem;
-            margin-bottom: 40px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-        }
-        
-        .stat-item {
-            background-color: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 10px;
-        }
-        
-        .stat-percent {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        /* FAQ */
-        .faq-item {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-        }
-        
-        .faq-question {
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        
-        /* Footer */
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 60px 0 30px;
-        }
-        
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-        
-        .footer-title {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: var(--secondary);
-        }
-        
-        .footer-links a {
-            color: #BBBBBB;
-            display: block;
-            margin-bottom: 10px;
+        .btn {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-top: 15px;
             text-decoration: none;
         }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+        .products {
+            padding: 20px;
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .section {
-                padding: 60px 0;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
+        .product {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .product img {
+            width: 100px;
+            margin-right: 20px;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .stars {
+            color: green;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
-        <div class="container">
-            <nav class="navbar">
-                <div class="logo">Réglo</div>
-                <div class="nav-links">
-                    <a href="#">Accueil</a>
-                    <a href="#produits">Produits</a>
-                    <a href="#avantages">Avantages</a>
-                    <a href="#avis">Avis</a>
-                    <a href="#faq">FAQ</a>
-                </div>
-            </nav>
-        </div>
+        -10€ sur votre 1ère commande code <strong>BIENVENUE10</strong>
     </header>
+    <nav>
+        <div>MENU</div>
+        <div>réglo.</div>
+        <div class="menu-icons">
+            <span>👤</span>
+            <span>🛒</span>
+        </div>
+    </nav>
+    <section class="hero">
+        <p>🇫🇷 FABRIQUÉES EN FRANCE</p>
+        <h1>Les croquettes pour aider votre chien qui <span>se gratte</span></h1>
+        <ul>
+            <li>Efficace contre les allergies</li>
+            <li>Respecte le régime carnivore</li>
+            <li>Formulation vétérinaire</li>
+        </ul>
+        <a href="#" class="btn">DÉCOUVRIR LA GAMME</a>
+    </section>
+    <section class="products">
+        <h2>Meilleures ventes</h2>
 
-    <!-- Bestsellers -->
-    <section class="section bestsellers" id="produits">
-        <div class="container">
-            <h2 class="section-title">Meilleures ventes</h2>
-            
-            <div class="products-grid">
-                <!-- Produit 1 -->
-                <div class="product-card">
-                    <img src="placeholder-product1.jpg" alt="Croquettes Allergies - Chien Adulte 10 à 30 kg" class="product-image">
-                    <div class="product-info">
-                        <h3 class="product-title">Croquettes Allergies - Chien Adulte 10 à 30 kg</h3>
-                        <div class="product-reviews">★★★★★ (762 avis)</div>
-                        <div class="product-category">Chien Adulte 10 à 30 kg - Croquettes Allergies</div>
-                        <div class="product-price">à partir de 34,80 €</div>
-                        <a href="#" class="btn btn-primary">Voir le produit</a>
-                    </div>
-                </div>
-                
-                <!-- Produit 2 -->
-                <div class="product-card">
-                    <img src="placeholder-product2.jpg" alt="Croquettes Allergies - Chien Adulte Moins de 10 kg" class="product-image">
-                    <div class="product-info">
-                        <h3 class="product-title">Croquettes Allergies - Chien Adulte Moins de 10 kg</h3>
-                        <div class="product-reviews">★★★★★ (745 avis)</div>
-                        <div class="product-category">Chien Adulte Moins de 10 kg - Croquettes Allergies</div>
-                        <div class="product-price">à partir de 26,80 €</div>
-                        <a href="#" class="btn btn-primary">Voir le produit</a>
-                    </div>
-                </div>
-                
-                <!-- Produit 3 -->
-                <div class="product-card">
-                    <img src="placeholder-product3.jpg" alt="Croquettes Équilibre - Chien Adulte 10 à 30 kg" class="product-image">
-                    <div class="product-info">
-                        <h3 class="product-title">Croquettes Équilibre - Chien Adulte 10 à 30 kg</h3>
-                        <div class="product-reviews">★★★★★ (540 avis)</div>
-                        <div class="product-category">Chien Adulte 10 à 30 kg - Croquettes Équilibre</div>
-                        <div class="product-price">à partir de 29,80 €</div>
-                        <a href="#" class="btn btn-primary">Voir le produit</a>
-                    </div>
-                </div>
-                
-                <!-- Produit 4 -->
-                <div class="product-card">
-                    <img src="placeholder-product4.jpg" alt="Croquettes Allergies - Chien Adulte Plus de 30 kg" class="product-image">
-                    <div class="product-info">
-                        <h3 class="product-title">Croquettes Allergies - Chien Adulte Plus de 30 kg</h3>
-                        <div class="product-reviews">★★★★★ (216 avis)</div>
-                        <div class="product-category">Chien Adulte Plus de 30 kg - Croquettes Allergies</div>
-                        <div class="product-price">à partir de 34,80 €</div>
-                        <a href="#" class="btn btn-primary">Voir le produit</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 50px;">
-                <a href="#" class="btn btn-primary">Découvrir plus de recettes</a>
+        <div class="product">
+            <img src="/path/to/image1.jpg" alt="Chien Allergies">
+            <div class="product-info">
+                <div class="stars">★★★★★ 762 avis</div>
+                <div>Chien Adulte 10 à 30 kg - <strong>Croquettes Allergies</strong></div>
+                <div>à partir de 34,80 €</div>
+                <a href="#" class="btn">VOIR LE PRODUIT</a>
             </div>
         </div>
-    </section>
 
-    <!-- Stats -->
-    <section class="stats" id="avantages">
-        <div class="container">
-            <h2 class="stats-title">EFFICACITÉ PROUVÉE EN 2 MOIS<br>+30 000 propriétaires de chiens ont changé leur vie</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-percent">88%</div>
-                    <p>trouvent que les croquettes réduisent les démangeaisons</p>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-percent">87%</div>
-                    <p>trouvent que leur chien a une meilleure odeur</p>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-percent">86%</div>
-                    <p>trouvent les croquettes efficaces contre les inconforts entre les orteils</p>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-percent">95%</div>
-                    <p>trouvent que les croquettes réduisent les otites</p>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-percent">95%</div>
-                    <p>trouvent que les croquettes améliorent la qualité des selles</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        <!-- Ajouter d'autres produits ici -->
 
-    <!-- Avis clients -->
-    <section class="section" id="avis">
-        <div class="container">
-            <h2 class="section-title">Avis clients</h2>
-            
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h3 style="font-size: 1.5rem; margin-bottom: 10px;">4,6/5</h3>
-                <p>basé sur 4221 avis</p>
-                <div style="color: var(--secondary); margin: 15px 0;">★★★★★</div>
-                <p>95% des personnes recommandent ce produit</p>
-            </div>
-            
-            <!-- Avis clients -->
-            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 40px;">
-                <!-- Avis 1 -->
-                <div style="background-color: var(--light); padding: 20px; border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong>Elisabeth B.</strong>
-                        <span>02/05/2025</span>
-                    </div>
-                    <div style="color: var(--secondary); margin-bottom: 10px;">★★★★★</div>
-                    <p>Je trouve que la chienne est beaucoup plus dynamique. Les croquettes sont plus rassasiantes.</p>
-                </div>
-                
-                <!-- Avis 2 -->
-                <div style="background-color: var(--light); padding: 20px; border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong>Audrey K.</strong>
-                        <span>02/05/2025</span>
-                    </div>
-                    <div style="color: var(--secondary); margin-bottom: 10px;">★★★★★</div>
-                    <p>Les croquettes ont très peu d'odeur donc très agréable pour nous les humains. Au bout d'une semaine net amélioration au niveau de ses démangeaisons aux pattes et beaucoup moins de flatulences mal odorantes.</p>
-                </div>
-                
-                <!-- Avis 3 -->
-                <div style="background-color: var(--light); padding: 20px; border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong>Gérard M.</strong>
-                        <span>02/05/2025</span>
-                    </div>
-                    <div style="color: var(--secondary); margin-bottom: 10px;">★★★★☆</div>
-                    <p>Quelques améliorations constatées mais toujours les problèmes de pattes qu'il se lèche. J'espère qu'avec le temps cela va s'arranger.</p>
-                </div>
-            </div>
-            
-            <div style="text-align: center;">
-                <a href="#" class="btn btn-primary">Voir tous les avis</a>
-            </div>
-        </div>
     </section>
-
-    <!-- FAQ -->
-    <section class="section" id="faq">
-        <div class="container">
-            <h2 class="section-title">Questions fréquentes</h2>
-            
-            <div style="max-width: 800px; margin: 0 auto;">
-                <div class="faq-item">
-                    <h3 class="faq-question">À quoi servent les croquettes pour chien hypoallergéniques Réglo?</h3>
-                    <p>Nos croquettes hypoallergéniques sont spécialement formulées pour les chiens souffrant d'allergies alimentaires ou cutanées. Elles aident à réduire les démangeaisons, les problèmes de peau et les troubles digestifs.</p>
-                </div>
-                
-                <div class="faq-item">
-                    <h3 class="faq-question">Comment sont fabriquées vos croquettes ?</h3>
-                    <p>Nos croquettes sont fabriquées en France avec des protéines d'insectes de haute qualité, des légumes et des fruits. Nous n'utilisons pas d'ingrédients allergènes comme le poulet, l'agneau ou le poisson.</p>
-                </div>
-                
-                <div class="faq-item">
-                    <h3 class="faq-question">Au bout de combien de temps puis-je espérer des résultats pour mon chien ?</h3>
-                    <p>La plupart de nos clients observent des améliorations dès les premières semaines, avec des résultats significatifs après 2 mois d'utilisation régulière.</p>
-                </div>
-                
-                <div class="faq-item">
-                    <h3 class="faq-question">Est-ce que les chiots peuvent consommer les croquettes Réglo ?</h3>
-                    <p>Nous proposons une formule spécialement adaptée aux besoins nutritionnels des chiots. Consultez notre gamme "Chiot" pour plus d'informations.</p>
-                </div>
-                
-                <div style="text-align: center; margin-top: 50px;">
-                    <a href="#" class="btn btn-primary">Voir toutes les questions</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <h3 class="footer-title">Pour chien</h3>
-                    <div class="footer-links">
-                        <a href="#">Croquettes hypoallergéniques</a>
-                        <a href="#">Croquettes sans viande</a>
-                        <a href="#">Croquettes chiot</a>
-                        <a href="#">Croquettes chien stérilisé</a>
-                        <a href="#">Croquettes chien surpoids</a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="footer-title">Bien choisir</h3>
-                    <div class="footer-links">
-                        <a href="#">Notre mission</a>
-                        <a href="#">Pourquoi les insectes ?</a>
-                        <a href="#">Guide croquette</a>
-                        <a href="#">Ils parlent de nous</a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="footer-title">Informations pratiques</h3>
-                    <div class="footer-links">
-                        <a href="#">Compte client</a>
-                        <a href="#">Abonnement</a>
-                        <a href="#">Avis clients</a>
-                        <a href="#">Blog</a>
-                        <a href="#">Recrutement</a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="footer-title">Contact</h3>
-                    <p>12 rue Blanche<br>75009 Paris</p>
-                    <p>Tél: 01 87 20 02 40</p>
-                    <p>Email: bonjour@reglo.fr</p>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Réglo. Tous droits réservés. | <a href="#" style="color: white;">CGV</a> | <a href="#" style="color: white;">Politique de confidentialité</a> | <a href="#" style="color: white;">Mentions légales</a></p>
-            </div>
-        </div>
+        <p>reglo.fr</p>
     </footer>
 </body>
 </html>
