@@ -27,92 +27,141 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px;
+      padding: 20px 16px;
       border-bottom: 1px solid #ddd;
     }
-    nav.navbar .logo {
-      font-size: 28px;
+    .navbar .menu {
+      font-size: 16px;
       font-weight: bold;
     }
-    .icons {
+    .navbar .logo {
+      font-size: 32px;
+      font-weight: bold;
+    }
+    .navbar .icons {
       display: flex;
       gap: 16px;
     }
+    .navbar .icons i {
+      font-size: 20px;
+    }
     .hero {
       text-align: center;
-      padding: 24px 16px;
+      padding: 40px 16px;
+    }
+    .hero p {
+      font-size: 14px;
+      margin-bottom: 8px;
     }
     .hero h1 {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
-      margin-bottom: 16px;
+      line-height: 1.4;
+      margin-bottom: 20px;
     }
     .hero h1 span {
       color: #00AEEF;
     }
     .hero ul {
       list-style: none;
-      margin-bottom: 16px;
+      padding-left: 0;
+      font-size: 15px;
+      margin-bottom: 20px;
     }
     .hero ul li {
-      margin: 6px 0;
+      margin: 8px 0;
+      position: relative;
+      padding-left: 24px;
     }
     .hero ul li::before {
-      content: '\2713';
-      color: black;
-      margin-right: 8px;
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #000;
     }
     .btn-primary {
       background-color: #000;
       color: #fff;
       padding: 12px 24px;
+      border-radius: 6px;
       text-decoration: none;
       display: inline-block;
-      border-radius: 4px;
-      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
     }
     section.products {
-      padding: 24px 16px;
+      padding: 32px 16px;
     }
     section.products h2 {
       font-size: 22px;
       font-weight: bold;
-      margin-bottom: 24px;
+      text-align: center;
+      margin-bottom: 32px;
     }
     .product-card {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .product-image {
+      background: #f5f5f5;
+      height: 200px;
       display: flex;
       align-items: center;
-      border-bottom: 1px solid #eee;
-      padding: 16px 0;
+      justify-content: center;
     }
-    .product-card img {
-      width: 100px;
-      height: auto;
-      margin-right: 16px;
+    .product-image img {
+      max-height: 180px;
+      max-width: 100%;
+    }
+    .product-badges {
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .badge-sale {
+      background-color: #ff5757;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge-award {
+      background-color: #ffd700;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
     }
     .product-info {
-      flex: 1;
+      padding: 16px;
     }
     .product-info .rating {
-      color: green;
+      color: #00AEEF;
       font-size: 14px;
       margin-bottom: 4px;
     }
     .product-info .title {
       font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      font-size: 15px;
     }
     .product-info .price {
-      margin-bottom: 8px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 14px;
     }
     footer {
       text-align: center;
       padding: 24px 0;
       font-size: 14px;
       border-top: 1px solid #eee;
-      margin-top: 32px;
+      margin-top: 40px;
     }
   </style>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="top-bar">
@@ -120,11 +169,11 @@
   </header>
 
   <nav class="navbar">
-    <div>MENU</div>
+    <div class="menu">MENU</div>
     <div class="logo">réglo.</div>
     <div class="icons">
-      <div>👤</div>
-      <div>🛒</div>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-cart"></i>
     </div>
   </nav>
 
@@ -143,8 +192,14 @@
     <h2>Meilleures ventes</h2>
 
     <div class="product-card">
-      <img src="#" alt="Produit 1" />
+      <div class="product-image">
+        <img src="#" alt="Produit 1" />
+      </div>
       <div class="product-info">
+        <div class="product-badges">
+          <div class="badge-sale">n°1 des ventes</div>
+          <div class="badge-award">ÉLU PRODUIT DE L'ANNÉE 2025</div>
+        </div>
         <div class="rating">★★★★★ 762 avis</div>
         <div class="title">Chien Adulte 10 à 30 kg - Croquettes Allergies</div>
         <div class="price">à partir de 34,80 €</div>
@@ -152,8 +207,7 @@
       </div>
     </div>
 
-    <!-- Vous pouvez تكرار الكروت كما تريد -->
-
+    <!-- Répétez pour d'autres produits -->
   </section>
 
   <footer>
