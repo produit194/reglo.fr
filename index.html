@@ -354,88 +354,92 @@
       gap: 20px;
     }
     
-    .category-card {
+        /* Nouveau style pour les cartes de produits */
+    .product-card-simple {
       background-color: white;
       border-radius: var(--border-radius);
       padding: 20px;
-      text-align: center;
+      margin-bottom: 20px;
       box-shadow: var(--box-shadow);
       transition: var(--transition);
     }
     
-    .category-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    .product-card-simple:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     }
     
-    .category-icon {
-      font-size: 32px;
-      margin-bottom: 15px;
-      color: var(--primary);
-    }
-    
-    .category-title {
+    .product-title-simple {
+      font-size: 18px;
       font-weight: 600;
       margin-bottom: 5px;
     }
     
-    .category-count {
-      font-size: 14px;
+    .product-variant-simple {
+      font-size: 16px;
       color: var(--gray);
+      margin-bottom: 10px;
     }
     
-    /* Features Section */
-    .features {
-      padding: 60px 0;
-    }
-    
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-    }
-    
-    .feature-card {
-      text-align: center;
-      padding: 30px 20px;
-    }
-    
-    .feature-icon {
-      font-size: 40px;
-      color: var(--primary);
-      margin-bottom: 20px;
-    }
-    
-    .feature-title {
+    .product-price-simple {
       font-size: 20px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 15px;
     }
     
-    .feature-desc {
+    .product-rating-simple {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      color: var(--secondary);
+    }
+    
+    .product-rating-simple span {
       color: var(--gray);
+      font-size: 13px;
+      margin-left: 5px;
     }
     
-    /* Testimonials Section */
-    .testimonials {
-      padding: 60px 0;
-      background-color: var(--light);
-    }
-    
-    .testimonials-slider {
-      max-width: 800px;
-      margin: 0 auto;
+    .product-action-simple {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background-color: var(--dark);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
       text-align: center;
     }
     
-    .testimonial-card {
-      background-color: white;
-      padding: 30px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      margin: 0 15px;
+    .product-action-simple:hover {
+      background-color: #333;
     }
     
+    /* Style pour la version mobile */
+    @media (max-width: 768px) {
+      .products-grid {
+        display: block;
+      }
+      
+      .product-card {
+        display: none; /* Cache les anciennes cartes sur mobile */
+      }
+      
+      .product-card-simple {
+        display: block; /* Affiche les nouvelles cartes sur mobile */
+      }
+    }
+    
+    /* Style pour la version desktop */
+    @media (min-width: 769px) {
+      .product-card-simple {
+        display: none; /* Cache les nouvelles cartes sur desktop */
+      }
+    }
+  
     .testimonial-text {
       font-size: 18px;
       font-style: italic;
