@@ -238,27 +238,27 @@
   .product-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    width: 100%;
     text-align: left;
   }
 
   .product-top {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
     width: 100%;
+    gap: 10px;
   }
 
-  .product-image {
-    width: 40px; /* حجم صغير */
+  .product-image img {
+    width: 40px;
     height: auto;
-    padding: 5px;
+    display: block;
   }
 
   .product-info {
+    font-size: 10px;
     flex: 1;
-    padding: 5px;
-    font-size: 10px; /* حجم الخط صغير */
   }
 
   .product-actions {
@@ -273,17 +273,7 @@
     width: 100%;
     font-size: 10px;
   }
-
-  .btn-black {
-    background-color: #000;
-    color: #fff;
-    border: none;
-  }
-
-  .btn-black:hover {
-    background-color: #333;
-  }
-}    
+}
     /* Categories Section */
     .categories {
       padding: 60px 0;
@@ -820,32 +810,39 @@
       <p>Des produits de qualité fabriqués en France pour le bien-être de votre animal</p>
     </div>
 
-    <div class="products-grid">
-      <!-- Croquettes Allergies - Chien Adulte Moins de 10 kg -->
-      <div class="product-card" data-product-id="1">
-        <div class="product-badge">N°1 des ventes</div>
-        <div class="product-image">
-          <img src="2_3d72a29f-2b52-441b-b1e4-fbd29210eb43.webp" alt="Croquettes Allergies">
-        </div>
-        <div class="product-info">
-          <div class="product-category">Croquettes Allergies - Problèmes de Peau</div>
-          <h3 class="product-title">Croquettes Allergies - Problèmes de Peau</h3>
-          <div class="product-variant">Chien Adulte Moins de 10 kg</div>
-          <div class="product-rating">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <span>745 avis</span>
-          </div>
-          <div class="product-price">à partir de 26,80 €</div>
-          <div class="product-actions">
-            <button class="btn btn-outline add-to-cart">Ajouter au panier</button>
-            <button class="btn btn-dark">Voir le produit</button>
-          </div>
-        </div>
+<div class="products-grid">
+  <!-- Croquettes Allergies - Chien Adulte Moins de 10 kg -->
+  <div class="product-card" data-product-id="1">
+    <div class="product-badge">N°1 des ventes</div>
+
+    <!-- ✅ Nouveau wrapper pour image + infos -->
+    <div class="product-top">
+      <div class="product-image">
+        <img src="2_3d72a29f-2b52-441b-b1e4-fbd29210eb43.webp" alt="Croquettes Allergies">
       </div>
+      <div class="product-info">
+        <div class="product-category">Croquettes Allergies - Problèmes de Peau</div>
+        <h3 class="product-title">Croquettes Allergies - Problèmes de Peau</h3>
+        <div class="product-variant">Chien Adulte Moins de 10 kg</div>
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <span>745 avis</span>
+        </div>
+        <div class="product-price">à partir de 26,80 €</div>
+      </div>
+    </div>
+
+    <!-- ✅ Boutons séparés dessous -->
+    <div class="product-actions">
+      <button class="btn btn-outline add-to-cart">Ajouter au panier</button>
+      <button class="btn btn-dark">Voir le produit</button>
+    </div>
+  </div>
+</div>
 
       <!-- Croquettes Allergies - Chien Adulte 10 à 30 kg -->
       <div class="product-card" data-product-id="2">
