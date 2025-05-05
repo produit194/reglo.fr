@@ -1697,21 +1697,23 @@
       });
     });
     
-// استبدل كود الـ JavaScript الخاص بالسلة بهذا الكود المحسن:
 document.addEventListener('DOMContentLoaded', function() {
-  // Cart functionality
+  // Improved Cart Functionality
   const cart = {
     items: [],
     total: 0,
     
     addItem: function(product) {
-      const existingItem = this.items.find(item => 
+      // Check if item already exists in cart
+      const existingItemIndex = this.items.findIndex(item => 
         item.id === product.id && item.variant === product.variant
       );
       
-      if (existingItem) {
-        existingItem.quantity += 1;
+      if (existingItemIndex !== -1) {
+        // Item exists, increase quantity
+        this.items[existingItemIndex].quantity += 1;
       } else {
+        // Add new item
         this.items.push({
           id: product.id,
           name: product.name,
@@ -1722,19 +1724,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
       
-      this.calculateTotal();
-      this.saveToLocalStorage();
-      this.updateCartUI();
-      this.showAddToCartFeedback();
+      this.updateCart();
     },
     
     removeItem: function(id, variant) {
       this.items = this.items.filter(item => 
         !(item.id === id && item.variant === variant)
       );
-      this.calculateTotal();
-      this.saveToLocalStorage();
-      this.updateCartUI();
+      this.updateCart();
     },
     
     calculateTotal: function() {
@@ -1743,22 +1740,20 @@ document.addEventListener('DOMContentLoaded', function() {
       );
     },
     
+    updateCart: function() {
+      this.calculateTotal();
+      this.saveToLocalStorage();
+      this.updateCartUI();
+    },
+    
     saveToLocalStorage: function() {
       localStorage.setItem('cart', JSON.stringify(this.items));
     },
     
     loadFromLocalStorage: function() {
       const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        try {
-          this.items = JSON.parse(savedCart) || [];
-          this.calculateTotal();
-          this.updateCartUI();
-        } catch (e) {
-          console.error("Error loading cart:", e);
-          this.items = [];
-        }
-      }
+      this.items = savedCart ? JSON.parse(savedCart) : [];
+      this.updateCart();
     },
     
     updateCartUI: function() {
@@ -1766,75 +1761,81 @@ document.addEventListener('DOMContentLoaded', function() {
       const cartTotalElement = document.querySelector('.cart-total span:last-child');
       const emptyCartMessage = document.querySelector('.empty-cart-message');
       
+      // Clear previous items
+      cartItemsContainer.innerHTML = '';
+      
       if (this.items.length === 0) {
         emptyCartMessage.style.display = 'block';
-        cartItemsContainer.innerHTML = '';
         cartTotalElement.textContent = '0,00 €';
         return;
       }
       
       emptyCartMessage.style.display = 'none';
       
-      let cartHTML = '';
+      // Add current items
       this.items.forEach(item => {
-        cartHTML += `
-          <div class="cart-item" data-id="${item.id}" data-variant="${item.variant}">
-            <div class="cart-item-img">
-              <img src="${item.image}" alt="${item.name}">
-            </div>
-            <div class="cart-item-details">
-              <div class="cart-item-title">${item.name}</div>
-              <div class="cart-item-variant">${item.variant}</div>
-              <div class="cart-item-price">${item.price.toFixed(2)} € × ${item.quantity}</div>
-              <div class="cart-item-remove">Supprimer</div>
-            </div>
+        const itemElement = document.createElement('div');
+        itemElement.className = 'cart-item';
+        itemElement.dataset.id = item.id;
+        itemElement.dataset.variant = item.variant;
+        
+        itemElement.innerHTML = `
+          <div class="cart-item-img">
+            <img src="${item.image}" alt="${item.name}">
+          </div>
+          <div class="cart-item-details">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-variant">${item.variant}</div>
+            <div class="cart-item-price">${item.price.toFixed(2)} € × ${item.quantity}</div>
+            <div class="cart-item-remove">Supprimer</div>
           </div>
         `;
-      });
-      
-      cartItemsContainer.innerHTML = cartHTML;
-      cartTotalElement.textContent = `${this.total.toFixed(2)} €`;
-      
-      // Add event listeners to remove buttons
-      document.querySelectorAll('.cart-item-remove').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const cartItem = e.target.closest('.cart-item');
-          const id = cartItem.dataset.id;
-          const variant = cartItem.dataset.variant;
-          this.removeItem(id, variant);
+        
+        cartItemsContainer.appendChild(itemElement);
+        
+        // Add event listener for remove button
+        itemElement.querySelector('.cart-item-remove').addEventListener('click', () => {
+          this.removeItem(item.id, item.variant);
         });
       });
+      
+      // Update total
+      cartTotalElement.textContent = `${this.total.toFixed(2)} €`;
     },
     
     showAddToCartFeedback: function() {
-      // Show sidebar if not already visible
-      if (!cartSidebar.classList.contains('active')) {
-        cartSidebar.classList.add('active');
-        cartOverlay.classList.add('active');
+      // Show cart sidebar if not already visible
+      if (!document.querySelector('.cart-sidebar').classList.contains('active')) {
+        document.querySelector('.cart-sidebar').classList.add('active');
+        document.querySelector('.cart-overlay').classList.add('active');
         document.body.style.overflow = 'hidden';
       }
       
       // Add animation to cart icon
       const cartIcon = document.getElementById('cart-icon');
       cartIcon.classList.add('animate');
-      setTimeout(() => {
-        cartIcon.classList.remove('animate');
-      }, 1000);
+      setTimeout(() => cartIcon.classList.remove('animate'), 1000);
     }
   };
 
   // Initialize cart
   cart.loadFromLocalStorage();
 
-  // Add to cart functionality
+  // Add to cart event listeners
   document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const productCard = e.target.closest('.product-card');
+    button.addEventListener('click', function(e) {
+      const productCard = this.closest('.product-card');
       const productId = productCard.dataset.productId;
       const productName = productCard.querySelector('.product-title').textContent;
       const productVariant = productCard.querySelector('.product-variant').textContent;
-      const productPriceText = productCard.querySelector('.product-price').textContent;
-      const productPrice = parseFloat(productPriceText.replace(/[^\d,]/g, '').replace(',', '.'));
+      
+      // Improved price extraction
+      const priceText = productCard.querySelector('.product-price').textContent;
+      const productPrice = parseFloat(
+        priceText.replace(/[^\d,]/g, '')
+                 .replace(',', '.')
+      );
+      
       const productImage = productCard.querySelector('.product-image img').src;
       
       cart.addItem({
@@ -1845,16 +1846,16 @@ document.addEventListener('DOMContentLoaded', function() {
         image: productImage
       });
       
-      // Show button feedback
-      const originalText = e.target.textContent;
-      e.target.textContent = 'Ajouté !';
-      e.target.style.backgroundColor = '#4CAF50';
-      e.target.style.borderColor = '#4CAF50';
+      // Button feedback
+      const originalText = this.textContent;
+      this.textContent = 'Ajouté !';
+      this.style.backgroundColor = '#4CAF50';
+      this.style.borderColor = '#4CAF50';
       
       setTimeout(() => {
-        e.target.textContent = originalText;
-        e.target.style.backgroundColor = '';
-        e.target.style.borderColor = '';
+        this.textContent = originalText;
+        this.style.backgroundColor = '';
+        this.style.borderColor = '';
       }, 2000);
     });
   });
@@ -1863,7 +1864,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
   const mobileMenu = document.querySelector('.mobile-menu');
   const closeMobileMenuBtn = document.querySelector('.close-mobile-menu');
-  const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
   
   mobileMenuBtn.addEventListener('click', () => {
     mobileMenu.classList.add('active');
@@ -1875,7 +1875,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   });
   
-  mobileMenuLinks.forEach(link => {
+  // Close mobile menu when clicking on links
+  document.querySelectorAll('.mobile-menu-links a').forEach(link => {
     link.addEventListener('click', () => {
       mobileMenu.classList.remove('active');
       document.body.style.overflow = '';
@@ -1888,7 +1889,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const closeCartBtn = document.querySelector('.close-cart');
   const cartOverlay = document.querySelector('.cart-overlay');
   
-  cartIcon.addEventListener('click', (e) => {
+  cartIcon.addEventListener('click', function(e) {
     e.preventDefault();
     cartSidebar.classList.add('active');
     cartOverlay.classList.add('active');
@@ -1907,7 +1908,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   });
 
-  // Add animation style for cart icon
+  // Add cart icon animation style
   const style = document.createElement('style');
   style.textContent = `
     @keyframes bounce {
@@ -1921,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   `;
   document.head.appendChild(style);
-   });
+});
   </script>
 </body>
 </html>
