@@ -363,7 +363,35 @@
       padding: 10px;
       font-size: 14px;
     }
-    
+    /* أضف هذه الأنماط إلى قسم الـ CSS */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 0;
+  }
+  
+  .navbar .logo {
+    font-size: 24px;
+    margin-left: 10px;
+  }
+  
+  .mobile-menu-btn {
+    margin-right: 10px;
+  }
+  
+  .nav-icons {
+    gap: 15px;
+    margin-right: 10px;
+  }
+  
+  .nav-icons i {
+    font-size: 18px;
+  }
+  
+  .top-bar {
+    font-size: 12px;
+    padding: 8px 0;
+  }
+}
     /* Categories Section */
     .categories {
       padding: 60px 0;
@@ -1669,25 +1697,231 @@
       });
     });
     
-    // Initialize cart
-    document.addEventListener('DOMContentLoaded', () => {
-      cart.loadFromLocalStorage();
+// استبدل كود الـ JavaScript الخاص بالسلة بهذا الكود المحسن:
+document.addEventListener('DOMContentLoaded', function() {
+  // Cart functionality
+  const cart = {
+    items: [],
+    total: 0,
+    
+    addItem: function(product) {
+      const existingItem = this.items.find(item => 
+        item.id === product.id && item.variant === product.variant
+      );
       
-      // Add animation style for cart icon
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-          40% {transform: translateY(-10px);}
-          60% {transform: translateY(-5px);}
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        this.items.push({
+          id: product.id,
+          name: product.name,
+          variant: product.variant,
+          price: product.price,
+          image: product.image,
+          quantity: 1
+        });
+      }
+      
+      this.calculateTotal();
+      this.saveToLocalStorage();
+      this.updateCartUI();
+      this.showAddToCartFeedback();
+    },
+    
+    removeItem: function(id, variant) {
+      this.items = this.items.filter(item => 
+        !(item.id === id && item.variant === variant)
+      );
+      this.calculateTotal();
+      this.saveToLocalStorage();
+      this.updateCartUI();
+    },
+    
+    calculateTotal: function() {
+      this.total = this.items.reduce((sum, item) => 
+        sum + (item.price * item.quantity), 0
+      );
+    },
+    
+    saveToLocalStorage: function() {
+      localStorage.setItem('cart', JSON.stringify(this.items));
+    },
+    
+    loadFromLocalStorage: function() {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          this.items = JSON.parse(savedCart) || [];
+          this.calculateTotal();
+          this.updateCartUI();
+        } catch (e) {
+          console.error("Error loading cart:", e);
+          this.items = [];
         }
-        #cart-icon.animate i {
-          animation: bounce 1s;
-          color: var(--primary);
-        }
-      `;
-      document.head.appendChild(style);
+      }
+    },
+    
+    updateCartUI: function() {
+      const cartItemsContainer = document.querySelector('.cart-items');
+      const cartTotalElement = document.querySelector('.cart-total span:last-child');
+      const emptyCartMessage = document.querySelector('.empty-cart-message');
+      
+      if (this.items.length === 0) {
+        emptyCartMessage.style.display = 'block';
+        cartItemsContainer.innerHTML = '';
+        cartTotalElement.textContent = '0,00 €';
+        return;
+      }
+      
+      emptyCartMessage.style.display = 'none';
+      
+      let cartHTML = '';
+      this.items.forEach(item => {
+        cartHTML += `
+          <div class="cart-item" data-id="${item.id}" data-variant="${item.variant}">
+            <div class="cart-item-img">
+              <img src="${item.image}" alt="${item.name}">
+            </div>
+            <div class="cart-item-details">
+              <div class="cart-item-title">${item.name}</div>
+              <div class="cart-item-variant">${item.variant}</div>
+              <div class="cart-item-price">${item.price.toFixed(2)} € × ${item.quantity}</div>
+              <div class="cart-item-remove">Supprimer</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      cartItemsContainer.innerHTML = cartHTML;
+      cartTotalElement.textContent = `${this.total.toFixed(2)} €`;
+      
+      // Add event listeners to remove buttons
+      document.querySelectorAll('.cart-item-remove').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const cartItem = e.target.closest('.cart-item');
+          const id = cartItem.dataset.id;
+          const variant = cartItem.dataset.variant;
+          this.removeItem(id, variant);
+        });
+      });
+    },
+    
+    showAddToCartFeedback: function() {
+      // Show sidebar if not already visible
+      if (!cartSidebar.classList.contains('active')) {
+        cartSidebar.classList.add('active');
+        cartOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+      
+      // Add animation to cart icon
+      const cartIcon = document.getElementById('cart-icon');
+      cartIcon.classList.add('animate');
+      setTimeout(() => {
+        cartIcon.classList.remove('animate');
+      }, 1000);
+    }
+  };
+
+  // Initialize cart
+  cart.loadFromLocalStorage();
+
+  // Add to cart functionality
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const productCard = e.target.closest('.product-card');
+      const productId = productCard.dataset.productId;
+      const productName = productCard.querySelector('.product-title').textContent;
+      const productVariant = productCard.querySelector('.product-variant').textContent;
+      const productPriceText = productCard.querySelector('.product-price').textContent;
+      const productPrice = parseFloat(productPriceText.replace(/[^\d,]/g, '').replace(',', '.'));
+      const productImage = productCard.querySelector('.product-image img').src;
+      
+      cart.addItem({
+        id: productId,
+        name: productName,
+        variant: productVariant,
+        price: productPrice,
+        image: productImage
+      });
+      
+      // Show button feedback
+      const originalText = e.target.textContent;
+      e.target.textContent = 'Ajouté !';
+      e.target.style.backgroundColor = '#4CAF50';
+      e.target.style.borderColor = '#4CAF50';
+      
+      setTimeout(() => {
+        e.target.textContent = originalText;
+        e.target.style.backgroundColor = '';
+        e.target.style.borderColor = '';
+      }, 2000);
     });
+  });
+
+  // Mobile menu functionality
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  const closeMobileMenuBtn = document.querySelector('.close-mobile-menu');
+  const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
+  
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+  
+  closeMobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  
+  mobileMenuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  });
+  
+  // Cart sidebar functionality
+  const cartIcon = document.getElementById('cart-icon');
+  const cartSidebar = document.querySelector('.cart-sidebar');
+  const closeCartBtn = document.querySelector('.close-cart');
+  const cartOverlay = document.querySelector('.cart-overlay');
+  
+  cartIcon.addEventListener('click', (e) => {
+    e.preventDefault();
+    cartSidebar.classList.add('active');
+    cartOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+  
+  closeCartBtn.addEventListener('click', () => {
+    cartSidebar.classList.remove('active');
+    cartOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  
+  cartOverlay.addEventListener('click', () => {
+    cartSidebar.classList.remove('active');
+    cartOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // Add animation style for cart icon
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-10px);}
+      60% {transform: translateY(-5px);}
+    }
+    #cart-icon.animate i {
+      animation: bounce 1s;
+      color: var(--primary);
+    }
+  `;
+  document.head.appendChild(style);
+   });
   </script>
 </body>
 </html>
