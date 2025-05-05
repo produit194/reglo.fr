@@ -239,27 +239,39 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    text-align: left;
+  }
+
+  .product-top {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
   }
 
   .product-image {
-    width: 100%;
+    width: 40px; /* حجم صغير */
     height: auto;
-    padding: 20px;
+    padding: 5px;
   }
 
   .product-info {
-    padding: 15px;
+    flex: 1;
+    padding: 5px;
+    font-size: 10px; /* حجم الخط صغير */
   }
 
   .product-actions {
-    width: 100%;
+    display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
+    width: 100%;
+    margin-top: 10px;
   }
 
   .product-actions .btn {
     width: 100%;
+    font-size: 10px;
   }
 
   .btn-black {
@@ -271,8 +283,7 @@
   .btn-black:hover {
     background-color: #333;
   }
-}
-    
+}    
     /* Categories Section */
     .categories {
       padding: 60px 0;
