@@ -354,7 +354,37 @@
       gap: 20px;
     }
     
-        /* Nouveau style pour les cartes de produits */
+    .category-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+    
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-icon {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+    
+    .category-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .category-count {
+      font-size: 14px;
+      color: var(--gray);
+    }
+    
+    /* Nouveau style pour les cartes de produits */
     .product-card-simple {
       background-color: white;
       border-radius: var(--border-radius);
@@ -439,7 +469,7 @@
         display: none; /* Cache les nouvelles cartes sur desktop */
       }
     }
-  
+    
     .testimonial-text {
       font-size: 18px;
       font-style: italic;
