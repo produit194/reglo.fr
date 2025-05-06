@@ -1202,10 +1202,171 @@
             visibility: visible;
         }
 
+        /* Checkout Page Styles */
+        .checkout-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .checkout-form {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .checkout-form h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: var(--dark);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .checkout-form h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkout-summary {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .checkout-summary h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--dark);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .checkout-summary h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-total {
+            font-weight: 600;
+            font-size: 18px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        /* Processing Page Styles */
+        .processing-container {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .processing-icon {
+            font-size: 60px;
+            color: var(--primary);
+            margin-bottom: 30px;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .processing-text {
+            font-size: 16px;
+            color: var(--gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
         /* Responsive Styles */
         @media (max-width: 1200px) {
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkout-summary {
+                position: static;
+                margin-top: 40px;
             }
         }
 
@@ -1280,6 +1441,11 @@
             
             .section-title h2 {
                 font-size: 28px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
             }
         }
         
@@ -1974,8 +2140,115 @@
         </div>
     </footer>
 
+    <!-- Checkout Page (hidden by default) -->
+    <div id="checkout-page" class="hidden">
+        <div class="checkout-container">
+            <h1 class="text-center">Finalisez votre commande</h1>
+            <div class="checkout-grid">
+                <div class="checkout-form">
+                    <h2>Informations de livraison</h2>
+                    <form id="delivery-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first-name">Prénom</label>
+                                <input type="text" id="first-name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last-name">Nom</label>
+                                <input type="text" id="last-name" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Téléphone</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Adresse</label>
+                            <input type="text" id="address" class="form-control" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postal-code">Code postal</label>
+                                <input type="text" id="postal-code" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">Ville</label>
+                                <input type="text" id="city" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Pays</label>
+                            <select id="country" class="form-control" required>
+                                <option value="FR">France</option>
+                                <option value="BE">Belgique</option>
+                                <option value="CH">Suisse</option>
+                                <option value="LU">Luxembourg</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-notes">Notes de livraison (optionnel)</label>
+                            <textarea id="delivery-notes" class="form-control" rows="3"></textarea>
+                        </div>
+                        <h2 style="margin-top: 40px;">Méthode de paiement</h2>
+                        <div class="form-group">
+                            <div class="payment-method">
+                                <input type="radio" id="credit-card" name="payment" value="credit-card" checked>
+                                <label for="credit-card">Carte de crédit</label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" id="paypal" name="payment" value="paypal">
+                                <label for="paypal">PayPal</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; margin-top: 20px;">
+                            Confirmer la commande
+                        </button>
+                    </form>
+                </div>
+                <div class="checkout-summary">
+                    <h3>Résumé de la commande</h3>
+                    <div id="checkout-items">
+                        <!-- Items will be dynamically inserted here -->
+                    </div>
+                    <div class="summary-item">
+                        <span>Sous-total</span>
+                        <span id="checkout-subtotal">0,00 €</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Livraison</span>
+                        <span>Gratuite</span>
+                    </div>
+                    <div class="summary-item summary-total">
+                        <span>Total</span>
+                        <span id="checkout-total">0,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Page (hidden by default) -->
+    <div id="processing-page" class="hidden">
+        <div class="processing-container">
+            <div class="processing-icon">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <h1 class="processing-title">Traitement de votre commande</h1>
+            <p class="processing-text">Votre commande est en cours de traitement. Vous recevrez un email de confirmation sous peu.</p>
+            <p class="processing-text">Merci pour votre confiance !</p>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Telegram Bot Configuration
+            const TELEGRAM_BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your actual bot token
+            const TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID'; // Replace with your actual chat ID
+            
             // Enhanced Cart Class
             class Cart {
                 constructor() {
@@ -2167,6 +2440,34 @@
                     cartIcon.classList.add('animate');
                     setTimeout(() => cartIcon.classList.remove('animate'), 1000);
                 }
+                
+                renderCheckoutSummary() {
+                    const checkoutItemsContainer = document.getElementById('checkout-items');
+                    const checkoutSubtotal = document.getElementById('checkout-subtotal');
+                    const checkoutTotal = document.getElementById('checkout-total');
+                    
+                    checkoutItemsContainer.innerHTML = '';
+                    
+                    this.items.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'summary-item';
+                        itemElement.innerHTML = `
+                            <span>${item.name} (${item.variant}) × ${item.quantity}</span>
+                            <span>${(item.price * item.quantity).toFixed(2)} €</span>
+                        `;
+                        checkoutItemsContainer.appendChild(itemElement);
+                    });
+                    
+                    checkoutSubtotal.textContent = `${this.total.toFixed(2)} €`;
+                    checkoutTotal.textContent = `${this.total.toFixed(2)} €`;
+                }
+                
+                clearCart() {
+                    this.items = [];
+                    this.total = 0;
+                    this.itemCount = 0;
+                    this.updateCart();
+                }
             }
 
             // Initialize Cart
@@ -2267,16 +2568,91 @@
             const checkoutBtn = document.querySelector('.checkout-btn');
             checkoutBtn.addEventListener('click', () => {
                 if (cart.itemCount > 0) {
-                    // Save cart to localStorage for the checkout page
-                    localStorage.setItem('checkoutCart', JSON.stringify({
-                        items: cart.items,
-                        total: cart.total
-                    }));
+                    // Hide main content and show checkout page
+                    document.querySelector('main').style.display = 'none';
+                    document.querySelector('footer').style.display = 'none';
+                    document.getElementById('checkout-page').classList.remove('hidden');
                     
-                    // Redirect to checkout page (you would replace this with your actual checkout page URL)
-                    window.location.href = 'checkout.html';
+                    // Render checkout summary
+                    cart.renderCheckoutSummary();
+                    
+                    // Scroll to top
+                    window.scrollTo(0, 0);
                 }
             });
+
+            // Form submission for checkout
+            const deliveryForm = document.getElementById('delivery-form');
+            deliveryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Collect form data
+                const formData = {
+                    firstName: document.getElementById('first-name').value,
+                    lastName: document.getElementById('last-name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    postalCode: document.getElementById('postal-code').value,
+                    city: document.getElementById('city').value,
+                    country: document.getElementById('country').value,
+                    deliveryNotes: document.getElementById('delivery-notes').value,
+                    paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                    items: cart.items,
+                    total: cart.total
+                };
+                
+                // Save order to localStorage (for demo purposes)
+                localStorage.setItem('currentOrder', JSON.stringify(formData));
+                
+                // Show processing page
+                document.getElementById('checkout-page').classList.add('hidden');
+                document.getElementById('processing-page').classList.remove('hidden');
+                
+                // Send order to Telegram bot
+                sendOrderToTelegram(formData);
+                
+                // In a real application, you would send this data to your server
+                setTimeout(() => {
+                    // After processing, redirect to confirmation page
+                    window.location.href = 'traitement.html';
+                }, 3000);
+            });
+
+            // Function to send order to Telegram bot
+            function sendOrderToTelegram(orderData) {
+                // Format the message
+                let message = `📦 *Nouvelle commande reçue!* 📦\n\n`;
+                message += `👤 *Client:* ${orderData.firstName} ${orderData.lastName}\n`;
+                message += `📧 *Email:* ${orderData.email}\n`;
+                message += `📱 *Téléphone:* ${orderData.phone}\n`;
+                message += `🏠 *Adresse:* ${orderData.address}, ${orderData.postalCode} ${orderData.city}, ${orderData.country}\n`;
+                message += `💳 *Méthode de paiement:* ${orderData.paymentMethod === 'credit-card' ? 'Carte de crédit' : 'PayPal'}\n\n`;
+                message += `🛒 *Articles commandés:*\n`;
+                
+                orderData.items.forEach(item => {
+                    message += `- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €\n`;
+                });
+                
+                message += `\n💰 *Total:* ${orderData.total.toFixed(2)} €\n`;
+                
+                if (orderData.deliveryNotes) {
+                    message += `\n📝 *Notes de livraison:* ${orderData.deliveryNotes}\n`;
+                }
+                
+                // Encode the message for URL
+                const encodedMessage = encodeURIComponent(message);
+                
+                // Send to Telegram bot
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodedMessage}&parse_mode=Markdown`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Message sent to Telegram:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error sending to Telegram:', error);
+                    });
+            }
 
             // Newsletter form submission
             const newsletterForm = document.querySelector('.newsletter-form');
