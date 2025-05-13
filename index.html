@@ -2246,8 +2246,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Telegram Bot Configuration
-        const TELEGRAM_BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your actual bot token
-        const TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID'; // Replace with your actual chat ID
+        const TELEGRAM_BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN';
+        const TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID';
         
         // Enhanced Cart Class
         class Cart {
@@ -2341,16 +2341,14 @@
             renderCartUI() {
                 const cartItemsContainer = document.querySelector('.cart-items');
                 const emptyCartMessage = document.querySelector('.empty-cart-message');
-                const cartSubtotalValue = document.querySelector('.cart-subtotal-value');
                 const cartTotalValue = document.querySelector('.cart-total-value');
                 
-                if (!cartItemsContainer) return; // Exit if cart UI elements don't exist
+                if (!cartItemsContainer) return;
                 
                 cartItemsContainer.innerHTML = '';
                 
                 if (this.items.length === 0) {
                     if (emptyCartMessage) emptyCartMessage.style.display = 'block';
-                    if (cartSubtotalValue) cartSubtotalValue.textContent = '0,00 €';
                     if (cartTotalValue) cartTotalValue.textContent = '0,00 €';
                     return;
                 }
@@ -2380,7 +2378,6 @@
                         </div>
                     `;
                     
-                    // Add event listeners for quantity buttons
                     const minusBtn = itemElement.querySelector('.minus');
                     const plusBtn = itemElement.querySelector('.plus');
                     const quantityInput = itemElement.querySelector('.quantity-input');
@@ -2412,8 +2409,6 @@
                     cartItemsContainer.appendChild(itemElement);
                 });
                 
-                // Update totals
-                if (cartSubtotalValue) cartSubtotalValue.textContent = `${this.total.toFixed(2)} €`;
                 if (cartTotalValue) cartTotalValue.textContent = `${this.total.toFixed(2)} €`;
             }
             
@@ -2447,29 +2442,6 @@
                 }
             }
             
-            renderCheckoutSummary() {
-                const checkoutItemsContainer = document.getElementById('checkout-items');
-                const checkoutSubtotal = document.getElementById('checkout-subtotal');
-                const checkoutTotal = document.getElementById('checkout-total');
-                
-                if (!checkoutItemsContainer) return;
-                
-                checkoutItemsContainer.innerHTML = '';
-                
-                this.items.forEach(item => {
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'summary-item';
-                    itemElement.innerHTML = `
-                        <span>${item.name} (${item.variant}) × ${item.quantity}</span>
-                        <span>${(item.price * item.quantity).toFixed(2)} €</span>
-                    `;
-                    checkoutItemsContainer.appendChild(itemElement);
-                });
-                
-                if (checkoutSubtotal) checkoutSubtotal.textContent = `${this.total.toFixed(2)} €`;
-                if (checkoutTotal) checkoutTotal.textContent = `${this.total.toFixed(2)} €`;
-            }
-            
             clearCart() {
                 this.items = [];
                 this.total = 0;
@@ -2481,7 +2453,7 @@
         // Initialize Cart
         const cart = new Cart();
 
-        // Improved Add to cart functionality
+        // Add to cart functionality
         function setupAddToCartButtons() {
             document.querySelectorAll('.add-to-cart').forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -2518,50 +2490,18 @@
                     
                     // Button feedback
                     const originalText = this.textContent;
-                    const originalBgColor = this.style.backgroundColor;
-                    const originalBorderColor = this.style.borderColor;
-                    
                     this.textContent = 'Ajouté !';
-                    this.style.backgroundColor = '#4CAF50';
-                    this.style.borderColor = '#4CAF50';
+                    this.classList.add('added');
                     
                     setTimeout(() => {
                         this.textContent = originalText;
-                        this.style.backgroundColor = originalBgColor;
-                        this.style.borderColor = originalBorderColor;
+                        this.classList.remove('added');
                     }, 2000);
                 });
             });
         }
-
-        // Call the function to set up buttons
         setupAddToCartButtons();
 
-        // Mobile menu functionality
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const mobileMenu = document.querySelector('.mobile-menu');
-        const closeMobileMenuBtn = document.querySelector('.close-mobile-menu');
-        
-        if (mobileMenuBtn && mobileMenu && closeMobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            closeMobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-            
-            // Close mobile menu when clicking on links
-            document.querySelectorAll('.mobile-menu-links a').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.remove('active');
-                    document.body.style.overflow = '';
-                });
-            });
-        }
-        
         // Cart sidebar functionality
         const cartIcon = document.getElementById('cart-icon');
         const cartSidebar = document.querySelector('.cart-sidebar');
@@ -2574,7 +2514,7 @@
                 cartSidebar.classList.add('active');
                 cartOverlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
-                cart.renderCartUI(); // Refresh cart view when opened
+                cart.renderCartUI();
             });
             
             closeCartBtn.addEventListener('click', () => {
@@ -2591,7 +2531,6 @@
         }
 
         // Checkout button functionality
-        // Checkout button functionality - Modified version
         const checkoutBtn = document.querySelector('.checkout-btn');
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', (e) => {
@@ -2602,103 +2541,39 @@
                     const orderData = {
                         items: cart.items,
                         total: cart.total,
-                        date: new Date().toLocaleString()
+                        date: new Date().toLocaleString('fr-FR'),
+                        orderId: 'CMD-' + Date.now()
                     };
                     
                     // Save order data to localStorage
                     localStorage.setItem('currentOrder', JSON.stringify(orderData));
                     
-                    // Redirect to traitement.html
+                    // Optional: Send to Telegram
+                    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+                        sendOrderToTelegram(orderData);
+                    }
+                    
+                    // Redirect to confirmation page
                     window.location.href = 'traitement.html';
+                } else {
+                    alert('Votre panier est vide. Ajoutez des produits avant de passer commande.');
                 }
-            });
-        }
-                    // Hide main content and show checkout page
-                    const mainContent = document.querySelector('main');
-                    const footer = document.querySelector('footer');
-                    const checkoutPage = document.getElementById('checkout-page');
-                    
-                    if (mainContent) mainContent.style.display = 'none';
-                    if (footer) footer.style.display = 'none';
-                    if (checkoutPage) checkoutPage.classList.remove('hidden');
-                    
-                    // Render checkout summary
-                    cart.renderCheckoutSummary();
-                    
-                    // Scroll to top
-                    window.scrollTo(0, 0);
-                }
-            });
-        }
-
-        // Form submission for checkout
-        const deliveryForm = document.getElementById('delivery-form');
-        if (deliveryForm) {
-            deliveryForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Collect form data
-                const formData = {
-                    firstName: document.getElementById('first-name').value,
-                    lastName: document.getElementById('last-name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
-                    postalCode: document.getElementById('postal-code').value,
-                    city: document.getElementById('city').value,
-                    country: document.getElementById('country').value,
-                    deliveryNotes: document.getElementById('delivery-notes').value,
-                    paymentMethod: document.querySelector('input[name="payment"]:checked')?.value,
-                    items: cart.items,
-                    total: cart.total
-                };
-                
-                // Save order to localStorage (for demo purposes)
-                localStorage.setItem('currentOrder', JSON.stringify(formData));
-                
-                // Show processing page
-                const checkoutPage = document.getElementById('checkout-page');
-                const processingPage = document.getElementById('processing-page');
-                
-                if (checkoutPage) checkoutPage.classList.add('hidden');
-                if (processingPage) processingPage.classList.remove('hidden');
-                
-                // Send order to Telegram bot
-                sendOrderToTelegram(formData);
-                
-                // In a real application, you would send this data to your server
-                setTimeout(() => {
-                    // After processing, redirect to confirmation page
-                    window.location.href = 'traitement.html';
-                }, 3000);
             });
         }
 
         // Function to send order to Telegram bot
         function sendOrderToTelegram(orderData) {
-            if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-                console.error('Telegram bot token or chat ID not configured');
-                return;
-            }
-            
             // Format the message
             let message = `📦 *Nouvelle commande reçue!* 📦\n\n`;
-            message += `👤 *Client:* ${orderData.firstName} ${orderData.lastName}\n`;
-            message += `📧 *Email:* ${orderData.email}\n`;
-            message += `📱 *Téléphone:* ${orderData.phone}\n`;
-            message += `🏠 *Adresse:* ${orderData.address}, ${orderData.postalCode} ${orderData.city}, ${orderData.country}\n`;
-            message += `💳 *Méthode de paiement:* ${orderData.paymentMethod === 'credit-card' ? 'Carte de crédit' : 'PayPal'}\n\n`;
-            message += `🛒 *Articles commandés:*\n`;
+            message += `🆔 *Numéro de commande:* ${orderData.orderId}\n`;
+            message += `📅 *Date:* ${orderData.date}\n\n`;
+            message += `🛒 *Articles commandés (${orderData.items.reduce((sum, item) => sum + item.quantity, 0)}):*\n`;
             
             orderData.items.forEach(item => {
                 message += `- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €\n`;
             });
             
-            message += `\n💰 *Total:* ${orderData.total.toFixed(2)} €\n`;
-            
-            if (orderData.deliveryNotes) {
-                message += `\n📝 *Notes de livraison:* ${orderData.deliveryNotes}\n`;
-            }
+            message += `\n💰 *Total:* ${orderData.total.toFixed(2)} €`;
             
             // Encode the message for URL
             const encodedMessage = encodeURIComponent(message);
@@ -2706,63 +2581,9 @@
             // Send to Telegram bot
             fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodedMessage}&parse_mode=Markdown`)
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Message sent to Telegram:', data);
-                })
-                .catch(error => {
-                    console.error('Error sending to Telegram:', error);
-                });
+                .then(data => console.log('Message sent to Telegram:', data))
+                .catch(error => console.error('Error sending to Telegram:', error));
         }
-
-        // Newsletter form submission
-        const newsletterForm = document.querySelector('.newsletter-form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const emailInput = this.querySelector('input[type="email"]');
-                const email = emailInput.value.trim();
-                
-                if (email) {
-                    // Here you would typically send the email to your server
-                    alert('Merci pour votre inscription à notre newsletter !');
-                    emailInput.value = '';
-                }
-            });
-        }
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // Add animations to elements when they come into view
-        const animateOnScroll = () => {
-            const elements = document.querySelectorAll('.product-card, .feature-card, .category-card, .testimonial-card');
-            
-            elements.forEach(element => {
-                const elementPosition = element.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementPosition < windowHeight - 100) {
-                    element.classList.add('animate-fade');
-                }
-            });
-        };
-        
-        window.addEventListener('scroll', animateOnScroll);
-        animateOnScroll(); // Run once on page load
     });
 </script>
 </body>
