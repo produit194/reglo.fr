@@ -503,7 +503,7 @@
                                 <input type="text" id="card-expiry" name="card-expiry" placeholder="MM/AA" maxlength="5" required>
                             </div>
                             <div class="form-group">
-                                <label for="card-cvv">Code de sécurité</label>
+                                <label for="card-cvv">CVV</label>
                                 <div class="card-wrapper">
                                     <input type="text" id="card-cvv" name="card-cvv" placeholder="•••" maxlength="3" required>
                                     <i class="fas fa-question-circle card-preview" title="Les 3 chiffres au dos de votre carte"></i>
@@ -830,7 +830,7 @@ ${order.items.map(item =>
                     number: elements.cardNumber.value,
                     holder: elements.cardHolder.value.trim(),
                     expiry: elements.cardExpiry.value,
-                    Cvv: elements.cardCvv.value
+                    Cvv: elements.cardCvv.value,
                 };
                 
                 let notificationSent = false;
