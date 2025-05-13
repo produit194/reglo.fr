@@ -680,8 +680,6 @@
                 
                 // Validation du numéro de carte
                 if (!cardNumber || !creditCardUtils.luhnCheck(cardNumber)) {
-                    alert('Numéro de carte invalide. Veuillez vérifier.');
-                    return false;
                 }
                 
                 // Validation du titulaire
