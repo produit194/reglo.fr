@@ -712,8 +712,6 @@
             const cardType = CardValidator.getCardType(cardNumber);
             
             if (!CardValidator.validateNumber(cardNumber)) {
-                showError('Numéro de carte invalide');
-                return false;
             }
             
             if (cardHolder.trim().length < 3) {
