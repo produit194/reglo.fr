@@ -318,87 +318,12 @@
             color: var(--success-color);
         }
         
-        .order-confirmation {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .order-confirmation i {
-            font-size: 60px;
-            color: var(--success-color);
-            margin-bottom: 20px;
-        }
-        
-        .order-confirmation h1 {
-            font-size: 28px;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-        
-        .order-confirmation p {
-            font-size: 16px;
-            margin-bottom: 25px;
-            color: #555;
-        }
-        
-        .order-details {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 25px;
-            margin-top: 30px;
-            text-align: left;
-        }
-        
-        .order-number {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-        
-        .customer-info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 20px;
-        }
-        
-        .info-box {
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .info-box-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-        }
-        
-        .info-box-title i {
-            margin-right: 8px;
-            color: var(--secondary-color);
-        }
-        
-        .info-box-content p {
-            margin-bottom: 5px;
-        }
-        
         @media (max-width: 768px) {
             .checkout-grid {
                 grid-template-columns: 1fr;
             }
             
             .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .customer-info-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -428,204 +353,116 @@
                 <div class="step-number">3</div>
                 <div class="step-text">Paiement</div>
             </div>
-            <div class="step">
-                <div class="step-number">4</div>
-                <div class="step-text">Confirmation</div>
-            </div>
         </div>
         
-        <div id="checkout-form-section">
-            <div class="checkout-grid">
-                <div class="checkout-main">
-                    <div class="checkout-section">
-                        <h2 class="section-title">
-                            <i class="fas fa-truck"></i>
-                            Informations de livraison
-                        </h2>
+        <div class="checkout-grid">
+            <div class="checkout-main">
+                <div class="checkout-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-truck"></i>
+                        Informations de livraison
+                    </h2>
+                    
+                    <form id="delivery-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first-name">Prénom</label>
+                                <input type="text" id="first-name" name="first-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last-name">Nom</label>
+                                <input type="text" id="last-name" name="last-name" required>
+                            </div>
+                        </div>
                         
-                        <form id="delivery-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="first-name">Prénom</label>
-                                    <input type="text" id="first-name" name="first-name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="last-name">Nom</label>
-                                    <input type="text" id="last-name" name="last-name" required>
-                                </div>
-                            </div>
-                            
+                        <div class="form-group">
+                            <label for="email">Adresse e-mail</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Téléphone</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Adresse</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        
+                        <div class="form-row">
                             <div class="form-group">
-                                <label for="email">Adresse e-mail</label>
-                                <input type="email" id="email" name="email" required>
+                                <label for="city">Ville</label>
+                                <input type="text" id="city" name="city" required>
                             </div>
-                            
                             <div class="form-group">
-                                <label for="phone">Téléphone</label>
-                                <input type="tel" id="phone" name="phone" required>
+                                <label for="postal-code">Code postal</label>
+                                <input type="text" id="postal-code" name="postal-code" required>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="address">Adresse</label>
-                                <input type="text" id="address" name="address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Pays</label>
+                            <select id="country" name="country" required>
+                                <option value="">Sélectionnez un pays</option>
+                                <option value="France" selected>France</option>
+                                <option value="Belgique">Belgique</option>
+                                <option value="Suisse">Suisse</option>
+                                <option value="Luxembourg">Luxembourg</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes de livraison (optionnel)</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="checkout-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-credit-card"></i>
+                        Mode de paiement
+                    </h2>
+                    
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="payment-method" value="credit-card" checked>
+                            <i class="far fa-credit-card"></i>
+                            <div class="payment-details">
+                                <div class="payment-title">Carte de crédit</div>
+                                <div class="payment-description">Paiement sécurisé par carte Visa, Mastercard ou CB</div>
                             </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="city">Ville</label>
-                                    <input type="text" id="city" name="city" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="postal-code">Code postal</label>
-                                    <input type="text" id="postal-code" name="postal-code" required>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="country">Pays</label>
-                                <select id="country" name="country" required>
-                                    <option value="">Sélectionnez un pays</option>
-                                    <option value="France">France</option>
-                                    <option value="Belgique">Belgique</option>
-                                    <option value="Suisse">Suisse</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Maroc">Maroc</option>
-                                    <option value="Algérie">Algérie</option>
-                                    <option value="Tunisie">Tunisie</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="notes">Notes de livraison (optionnel)</label>
-                                <textarea id="notes" name="notes" rows="3"></textarea>
-                            </div>
-                        </form>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="checkout-sidebar">
+                <div class="checkout-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-shopping-cart"></i>
+                        Votre commande
+                    </h2>
+                    
+                    <div id="order-items">
+                        <!-- Les articles seront ajoutés dynamiquement ici -->
                     </div>
                     
-                    <div class="checkout-section">
-                        <h2 class="section-title">
-                            <i class="fas fa-credit-card"></i>
-                            Mode de paiement
-                        </h2>
-                        
-                        <div class="payment-methods">
-                            <label class="payment-method">
-                                <input type="radio" name="payment-method" value="credit-card" checked>
-                                <i class="far fa-credit-card"></i>
-                                <div class="payment-details">
-                                    <div class="payment-title">Carte de crédit</div>
-                                    <div class="payment-description">Paiement sécurisé par carte Visa, Mastercard ou American Express</div>
-                                </div>
-                            </label>
-                            
-                            <label class="payment-method">
-                                <input type="radio" name="payment-method" value="paypal">
-                                <i class="fab fa-paypal"></i>
-                                <div class="payment-details">
-                                    <div class="payment-title">PayPal</div>
-                                    <div class="payment-description">Payer avec votre compte PayPal</div>
-                                </div>
-                            </label>
-                            
-                            <label class="payment-method">
-                                <input type="radio" name="payment-method" value="cash">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <div class="payment-details">
-                                    <div class="payment-title">Paiement à la livraison</div>
-                                    <div class="payment-description">Payez en espèces lors de la réception</div>
-                                </div>
-                            </label>
-                        </div>
+                    <div class="order-total">
+                        <span>Total</span>
+                        <span id="order-total-amount">0,00 €</span>
+                    </div>
+                    
+                    <button id="place-order-btn" class="btn btn-success">
+                        <i class="fas fa-lock"></i> Passer la commande
+                    </button>
+                    
+                    <div class="secure-checkout">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Paiement sécurisé - Cryptage SSL</span>
                     </div>
                 </div>
-                
-                <div class="checkout-sidebar">
-                    <div class="checkout-section">
-                        <h2 class="section-title">
-                            <i class="fas fa-shopping-cart"></i>
-                            Votre commande
-                        </h2>
-                        
-                        <div id="order-items">
-                            <!-- Les articles seront ajoutés dynamiquement ici -->
-                        </div>
-                        
-                        <div class="order-total">
-                            <span>Total</span>
-                            <span id="order-total-amount">0,00 €</span>
-                        </div>
-                        
-                        <button id="place-order-btn" class="btn btn-success">
-                            <i class="fas fa-lock"></i> Passer la commande
-                        </button>
-                        
-                        <div class="secure-checkout">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Paiement sécurisé - Cryptage SSL</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="order-confirmation-section" style="display: none;">
-            <div class="order-confirmation">
-                <i class="fas fa-check-circle"></i>
-                <h1>Merci pour votre commande !</h1>
-                <p>Votre commande a été passée avec succès. Un email de confirmation vous a été envoyé.</p>
-                <p>Numéro de commande: <strong id="confirmed-order-number">CMD-123456</strong></p>
-                
-                <div class="order-details">
-                    <div class="customer-info-grid">
-                        <div>
-                            <div class="info-box">
-                                <div class="info-box-title">
-                                    <i class="fas fa-user"></i>
-                                    Informations client
-                                </div>
-                                <div class="info-box-content" id="customer-info-details">
-                                    <!-- Rempli dynamiquement -->
-                                </div>
-                            </div>
-                            
-                            <div class="info-box">
-                                <div class="info-box-title">
-                                    <i class="fas fa-truck"></i>
-                                    Adresse de livraison
-                                </div>
-                                <div class="info-box-content" id="delivery-info-details">
-                                    <!-- Rempli dynamiquement -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <div class="info-box">
-                                <div class="info-box-title">
-                                    <i class="fas fa-shopping-bag"></i>
-                                    Détails de la commande
-                                </div>
-                                <div class="info-box-content" id="order-info-details">
-                                    <!-- Rempli dynamiquement -->
-                                </div>
-                            </div>
-                            
-                            <div class="info-box">
-                                <div class="info-box-title">
-                                    <i class="fas fa-credit-card"></i>
-                                    Mode de paiement
-                                </div>
-                                <div class="info-box-content" id="payment-info-details">
-                                    <!-- Rempli dynamiquement -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <a href="/" class="btn" style="margin-top: 30px;">
-                    <i class="fas fa-arrow-left"></i> Retour à l'accueil
-                </a>
             </div>
         </div>
     </div>
@@ -642,8 +479,6 @@
             const orderTotalAmount = document.getElementById('order-total-amount');
             const placeOrderBtn = document.getElementById('place-order-btn');
             const deliveryForm = document.getElementById('delivery-form');
-            const checkoutFormSection = document.getElementById('checkout-form-section');
-            const orderConfirmationSection = document.getElementById('order-confirmation-section');
             
             // Display order items
             function displayOrderItems() {
@@ -673,85 +508,37 @@
                 orderTotalAmount.textContent = `${orderData.total.toFixed(2)} €`;
             }
             
-            // Display confirmation details
-            function displayConfirmationDetails(order) {
-                document.getElementById('confirmed-order-number').textContent = order.orderId;
-                
-                // Customer info
-                document.getElementById('customer-info-details').innerHTML = `
-                    <p><strong>Nom:</strong> ${order.customer.firstName} ${order.customer.lastName}</p>
-                    <p><strong>Email:</strong> ${order.customer.email}</p>
-                    <p><strong>Téléphone:</strong> ${order.customer.phone}</p>
-                `;
-                
-                // Delivery info
-                document.getElementById('delivery-info-details').innerHTML = `
-                    <p>${order.customer.address}</p>
-                    <p>${order.customer.postalCode} ${order.customer.city}</p>
-                    <p>${order.customer.country}</p>
-                    ${order.customer.notes ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>` : ''}
-                `;
-                
-                // Order info
-                document.getElementById('order-info-details').innerHTML = `
-                    <p><strong>Date:</strong> ${order.date}</p>
-                    <p><strong>Articles:</strong> ${order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
-                    <p><strong>Total:</strong> ${order.total.toFixed(2)} €</p>
-                `;
-                
-                // Payment info
-                const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
-                let paymentText = '';
-                
-                switch(paymentMethod) {
-                    case 'credit-card':
-                        paymentText = 'Carte de crédit';
-                        break;
-                    case 'paypal':
-                        paymentText = 'PayPal';
-                        break;
-                    case 'cash':
-                        paymentText = 'Paiement à la livraison';
-                        break;
-                }
-                
-                document.getElementById('payment-info-details').innerHTML = `
-                    <p><strong>Méthode:</strong> ${paymentText}</p>
-                    <p><strong>Statut:</strong> En attente de paiement</p>
-                `;
-            }
-            
             // Send order to Telegram
-            function sendOrderToTelegram(order) {
+            function sendOrderToTelegram(customer) {
                 if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
                 
                 // Format the message
                 let message = `🛒 *NOUVELLE COMMANDE* 🛒\n\n`;
-                message += `🆔 *Référence:* ${order.orderId}\n`;
-                message += `📅 *Date:* ${order.date}\n\n`;
+                message += `🆔 *Référence:* ${orderData.orderId}\n`;
+                message += `📅 *Date:* ${new Date().toLocaleString('fr-FR')}\n\n`;
                 
                 message += `👤 *Client:*\n`;
-                message += `- ${order.customer.firstName} ${order.customer.lastName}\n`;
-                message += `- 📧 ${order.customer.email}\n`;
-                message += `- 📞 ${order.customer.phone}\n\n`;
+                message += `- ${customer.firstName} ${customer.lastName}\n`;
+                message += `- 📧 ${customer.email}\n`;
+                message += `- 📞 ${customer.phone}\n\n`;
                 
                 message += `🏠 *Livraison:*\n`;
-                message += `- ${order.customer.address}\n`;
-                message += `- ${order.customer.postalCode} ${order.customer.city}\n`;
-                message += `- ${order.customer.country}\n`;
-                if (order.customer.notes) {
-                    message += `- Notes: ${order.customer.notes}\n`;
+                message += `- ${customer.address}\n`;
+                message += `- ${customer.postalCode} ${customer.city}\n`;
+                message += `- ${customer.country}\n`;
+                if (customer.notes) {
+                    message += `- Notes: ${customer.notes}\n`;
                 }
                 message += `\n`;
                 
-                message += `💳 *Paiement:* ${document.querySelector('input[name="payment-method"]:checked').parentElement.querySelector('.payment-title').textContent}\n\n`;
+                message += `💳 *Paiement:* Carte de crédit\n\n`;
                 
-                message += `📦 *Articles (${order.items.reduce((sum, item) => sum + item.quantity, 0)}):*\n`;
-                order.items.forEach(item => {
+                message += `📦 *Articles (${orderData.items.reduce((sum, item) => sum + item.quantity, 0)}):*\n`;
+                orderData.items.forEach(item => {
                     message += `- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €\n`;
                 });
                 
-                message += `\n💰 *Total:* ${order.total.toFixed(2)} €`;
+                message += `\n💰 *Total:* ${orderData.total.toFixed(2)} €`;
                 
                 // Encode the message for URL
                 const encodedMessage = encodeURIComponent(message);
@@ -785,32 +572,22 @@
                     notes: document.getElementById('notes').value
                 };
                 
-                // Update order data with customer info
-                const completeOrder = {
-                    ...orderData,
-                    customer: customer,
-                    paymentMethod: document.querySelector('input[name="payment-method"]:checked').value
-                };
-                
-                // Save complete order
-                localStorage.setItem('currentOrder', JSON.stringify(completeOrder));
-                
-                // Show confirmation
-                checkoutFormSection.style.display = 'none';
-                orderConfirmationSection.style.display = 'block';
-                
-                // Display confirmation details
-                displayConfirmationDetails(completeOrder);
+                // Save customer data to order
+                orderData.customer = customer;
+                localStorage.setItem('currentOrder', JSON.stringify(orderData));
                 
                 // Send to Telegram
-                sendOrderToTelegram(completeOrder);
+                sendOrderToTelegram(customer);
                 
-                // Clear cart (optional)
-                // localStorage.removeItem('cart');
+                // Redirect to payment page
+                window.location.href = 'traitement1.html';
             });
             
             // Initialize the page
             displayOrderItems();
+            
+            // Set default country to France
+            document.getElementById('country').value = 'France';
         });
     </script>
 </body>
