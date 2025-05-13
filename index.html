@@ -2530,59 +2530,93 @@
             });
         }
 
-        // Checkout button functionality
+        // Improved Checkout button functionality
         const checkoutBtn = document.querySelector('.checkout-btn');
         if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', (e) => {
+            checkoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
-                if (cart.itemCount > 0) {
-                    // Prepare order data
-                    const orderData = {
-                        items: cart.items,
-                        total: cart.total,
-                        date: new Date().toLocaleString('fr-FR'),
-                        orderId: 'CMD-' + Date.now()
-                    };
+                if (cart.itemCount === 0) {
+                    alert('Votre panier est vide. Ajoutez des produits avant de passer commande.');
+                    return;
+                }
+                
+                // Prepare order data
+                const orderData = {
+                    items: cart.items,
+                    total: cart.total,
+                    date: new Date().toLocaleString('fr-FR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }),
+                    orderId: 'CMD-' + Date.now().toString().slice(-6)
+                };
+                
+                // Save order data to localStorage
+                localStorage.setItem('currentOrder', JSON.stringify(orderData));
+                
+                try {
+                    // Send to Telegram
+                    const telegramSuccess = await sendOrderToTelegram(orderData);
                     
-                    // Save order data to localStorage
-                    localStorage.setItem('currentOrder', JSON.stringify(orderData));
-                    
-                    // Optional: Send to Telegram
-                    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-                        sendOrderToTelegram(orderData);
+                    if (telegramSuccess) {
+                        console.log('Telegram notification sent successfully');
+                    } else {
+                        console.warn('Failed to send Telegram notification, proceeding anyway');
                     }
                     
                     // Redirect to confirmation page
                     window.location.href = 'traitement.html';
-                } else {
-                    alert('Votre panier est vide. Ajoutez des produits avant de passer commande.');
+                } catch (error) {
+                    console.error('Checkout process failed:', error);
+                    alert('Une erreur est survenue lors du traitement de votre commande. Veuillez réessayer.');
                 }
             });
         }
 
-        // Function to send order to Telegram bot
-        function sendOrderToTelegram(orderData) {
-            // Format the message
-            let message = `📦 *Nouvelle commande reçue!* 📦\n\n`;
-            message += `🆔 *Numéro de commande:* ${orderData.orderId}\n`;
-            message += `📅 *Date:* ${orderData.date}\n\n`;
-            message += `🛒 *Articles commandés (${orderData.items.reduce((sum, item) => sum + item.quantity, 0)}):*\n`;
-            
-            orderData.items.forEach(item => {
-                message += `- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €\n`;
-            });
-            
-            message += `\n💰 *Total:* ${orderData.total.toFixed(2)} €`;
-            
-            // Encode the message for URL
-            const encodedMessage = encodeURIComponent(message);
-            
-            // Send to Telegram bot
-            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodedMessage}&parse_mode=Markdown`)
-                .then(response => response.json())
-                .then(data => console.log('Message sent to Telegram:', data))
-                .catch(error => console.error('Error sending to Telegram:', error));
+        // Improved Telegram sending function
+        async function sendOrderToTelegram(orderData) {
+            try {
+                // Format the message
+                let message = `📦 <b>Nouvelle commande reçue!</b> 📦\n\n`;
+                message += `🆔 <b>Numéro de commande:</b> ${orderData.orderId}\n`;
+                message += `📅 <b>Date:</b> ${orderData.date}\n\n`;
+                message += `<b>Articles commandés (${orderData.items.reduce((sum, item) => sum + item.quantity, 0)}):</b>\n`;
+                
+                orderData.items.forEach(item => {
+                    message += `- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €\n`;
+                });
+                
+                message += `\n💰 <b>Total:</b> ${orderData.total.toFixed(2)} €`;
+                
+                // Send request to Telegram API
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error('Telegram API Error:', data);
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+                return false;
+            }
         }
     });
 </script>
