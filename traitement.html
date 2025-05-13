@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de Commande</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .order-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .order-total {
+            font-weight: bold;
+            font-size: 1.2em;
+            text-align: right;
+            margin-top: 20px;
+        }
+        .order-date {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Merci pour votre commande!</h1>
+    <p>Votre commande a été enregistrée avec succès.</p>
+    
+    <div id="order-details" class="order-container">
+        <!-- سيتم ملء هذا القسم بواسطة JavaScript -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderDetails = document.getElementById('order-details');
+            const orderData = JSON.parse(localStorage.getItem('currentOrder'));
+            
+            if (orderData && orderData.items && orderData.items.length > 0) {
+                let html = `
+                    <h2>Détails de la commande</h2>
+                    <div class="order-date">Date: ${orderData.date}</div>
+                `;
+                
+                // Add items
+                orderData.items.forEach(item => {
+                    html += `
+                        <div class="order-item">
+                            <div>
+                                <strong>${item.name}</strong> (${item.variant})<br>
+                                Quantité: ${item.quantity}
+                            </div>
+                            <div>${(item.price * item.quantity).toFixed(2)} €</div>
+                        </div>
+                    `;
+                });
+                
+                // Add total
+                html += `
+                    <div class="order-total">
+                        Total: ${orderData.total.toFixed(2)} €
+                    </div>
+                `;
+                
+                orderDetails.innerHTML = html;
+            } else {
+                orderDetails.innerHTML = '<p>Aucune commande trouvée.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
