@@ -2591,10 +2591,28 @@
         }
 
         // Checkout button functionality
+        // Checkout button functionality - Modified version
         const checkoutBtn = document.querySelector('.checkout-btn');
         if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', () => {
+            checkoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
                 if (cart.itemCount > 0) {
+                    // Prepare order data
+                    const orderData = {
+                        items: cart.items,
+                        total: cart.total,
+                        date: new Date().toLocaleString()
+                    };
+                    
+                    // Save order data to localStorage
+                    localStorage.setItem('currentOrder', JSON.stringify(orderData));
+                    
+                    // Redirect to traitement.html
+                    window.location.href = 'traitement.html';
+                }
+            });
+        }
                     // Hide main content and show checkout page
                     const mainContent = document.querySelector('main');
                     const footer = document.querySelector('footer');
